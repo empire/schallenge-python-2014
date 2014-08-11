@@ -1,1 +1,3 @@
 pip install Flask-WTF
+pip install Flask-Captcha
+pip install WTForms-Alchemy

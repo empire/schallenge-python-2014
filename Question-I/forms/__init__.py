@@ -1,3 +1,3 @@
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
-from account_model import Account
+from register_form import RegisterForm
