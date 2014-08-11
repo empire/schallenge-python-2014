@@ -1,14 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>New Todo Item</h2>
-  <form action="" method=post>
+  <h2>Register</h2>
+  <form action="" method="post">
     <p>
-      Title:
-      <input type=text name=title value="{{ request.form.title }}">
-    <p>Text:
-    <p><textarea name=text rows=10 cols=40>{{ request.form.text }}</textarea>
+      Username: <input type="text" name="username" value="{{ request.form.username }}">
+    </p>
     <p>
-      <input type=submit value="Create entry">
-      <a href="{{ url_for('show_all') }}">Back to list</a>
+      Password:<input type="password" name="password">
+    </p>
+    <p>
+      Email:<input type="text" name="email" value="{{ request.form.email }}">
+    </p>
+    <p>
+      <input type="submit" value="Register">
+      <a href="{{ url_for('home') }}">Back to Home</a>
   </form>
 {% endblock %}
