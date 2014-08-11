@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Account Management System</title>
+    </head>
+    <body>
+        <h1>Welcome</h1>
+        {%- for category, message in get_flashed_messages(with_categories=true) %}
+            <p class="flask {{ category }}-flash">{{ "Error: " if category == 'error' }}{{ message }}</p>
+        {%- endfor %}
+        {% block body %}{% endblock %}
+        <hr>
+    </body>
+</html>
