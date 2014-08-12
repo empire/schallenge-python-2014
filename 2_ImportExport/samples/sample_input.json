@@ -1,0 +1,7 @@
+{"transactions":
+[{"type":"deposit", "account_id":123456789012345, "amount":20000.0},
+{"type":"deposit", "account_id":555456789012345, "amount":20000.0},
+{"type":"payment", "account_id":123456789012345, "amount":20000.0},
+{"type":"transfer", "from":555456789012345, "to":123456789012345, "amount":20000.0}
+]
+}

@@ -1,0 +1,6 @@
+{
+    "accounts_delta":[
+        {"account_id": 123456789012345, "amount": 20000.0},
+        {"account_id": 555456789012345, "amount": 0.0}
+    ]
+}

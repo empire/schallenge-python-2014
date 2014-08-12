@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<accounts_delta>
+   <account><id>123456789012345</id><amount>20000.0</amount></account>
+   <account><id>555456789012345</id><amount>0.0</amount></account>
+</accounts_delta>
