@@ -1,25 +1,28 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>All Items</h2>
-  <form action="{{ url_for('update_done') }}" method=post>
+    <h2>All Items</h2>
     <table class=todos>
-      <tr>
-        <th>#
-        <th>Title
-        <th>Date
-        <th>Done?
-      {%- for todo in todos %}
-      <tr class=title>
-        <td>{{ todo.id }}
-        <td>{{ todo.username }}
-        <td>{{ todo.registered_at }}
-        <td><input type=checkbox name=done.{{ todo.id }}{{ " checked" if todo.done }}>
-      <tr class=text>
-        <td colspan=3>{{ todo.text }}</td>
-      {%- endfor %}
+        <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Enabled</th>
+            <th>Check Email Message</th>
+            <th>Registered At</th>
+            {%- for account in todos %}
+                <tr class=title>
+                    <td>{{ account.id }}</td>
+                    <td>{{ account.username }}</td>
+                    <td>{{ account.email }}</td>
+                    <td><input type="checkbox" disabled {{ " checked" if account.enabled }}></td>
+                    <td>
+                        <a href="{{ url_for('activation_check', id=account.id) }}"><b>{{ account.activation_code }}</b></a>
+                    </td>
+                    <td>{{ account.registered_at }}</td>
+                <tr class=text>
+                <td colspan=3>{{ account.text }}</td>
+            {%- endfor %}
     </table>
     <p>
-      <input type=submit value="Update">
-      <a href="{{ url_for('register') }}">Register</a>
-  </form>
+    <a href="{{ url_for('register') }}">Register</a>
 {% endblock %}
