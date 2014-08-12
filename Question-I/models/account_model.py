@@ -20,7 +20,7 @@ class Account(db.Model):
     registered_at = db.Column(db.DateTime)
     #
     activation_code = db.Column(db.String, nullable=False)
-    activation_code_generated_at = db.Column(db.DateTime, nullable=False)
+    activation_code_generated_at = db.Column(db.DateTime, nullable=True)
 
     enabled = db.Column(db.Boolean, nullable=True)
     enabled_at = db.Column(db.DateTime, nullable=True)

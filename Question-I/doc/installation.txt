@@ -2,3 +2,9 @@ pip install Flask-WTF
 pip install Flask-Captcha
 pip install WTForms-Alchemy
 pip install flask-migrate
+
+sudo apt-get install libmysqlclient-dev
+pip install MySQL-python
+
+sudo apt-get install libpq-dev
+pip install psycopg2
