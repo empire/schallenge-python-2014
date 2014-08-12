@@ -13,7 +13,6 @@ def test_open(csv_mock):
     assert reader._CSVInputReader__data == None
     reader.open(123)
     csv_mock.reader.assert_called_with(123)
-    assert reader._CSVInputReader__head == ['from', 'to', 'amount']
     assert next(reader._CSVInputReader__data) == ['2', '3', '5']
 
 
