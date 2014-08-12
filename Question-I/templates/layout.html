@@ -5,6 +5,12 @@
     </head>
     <body>
         <h1>Account Management System</h1>
+        {% if not session.username %}
+            <a href="{{ url_for('login') }}">log in</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}">log out</a>
+        {% endif %}
+
         {%- for category, message in get_flashed_messages(with_categories=true) %}
             <p class="flask {{ category }}-flash">{{ "Error: " if category == 'error' }}{{ message }}</p>
         {%- endfor %}

@@ -1,0 +1,7 @@
+<b>To: {{ account.username }} <{{ account.email }}></b>
+<br />
+<b>Subject: </b> Your activation code
+<hr />
+Hello, Thanks for your registration, your activation code is
+<a href="{{ url_for('activation_activate', code=account.activation_code) }}"><b>{{ account.activation_code }}</b></a>
+

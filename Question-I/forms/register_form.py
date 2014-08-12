@@ -8,3 +8,4 @@ from models import Account
 class RegisterForm(ModelForm):
     class Meta:
         model = Account
+        exclude = ['activation_code', 'salt', 'registered_at', 'activation_code_generated_at', 'enabled', 'enabled_at']
