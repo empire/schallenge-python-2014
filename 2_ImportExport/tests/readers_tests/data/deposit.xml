@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transactions>
+   <deposit>
+      <account_id>3</account_id>
+      <amount>2.0</amount>
+   </deposit>
+   <deposit>
+      <account_id>7</account_id>
+      <amount>5.0</amount>
+   </deposit>
+</transactions>

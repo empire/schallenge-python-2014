@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transactions>
+   <transfer>
+      <from>2</from>
+      <to>3</to>
+      <amount>5.0</amount>
+   </transfer>
+   <transfer>
+      <from>7</from>
+      <to>11</to>
+      <amount>13.0</amount>
+   </transfer>
+</transactions>
