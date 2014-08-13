@@ -16,4 +16,7 @@ class TransactionRepository:
     def get_formatted_transactions(self):
         return self.__accounts.iteritems()
 
+    def clear(self):
+        self.__accounts.clear()
+
 repository = TransactionRepository()

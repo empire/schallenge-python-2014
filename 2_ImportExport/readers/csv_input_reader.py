@@ -1,13 +1,13 @@
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 from input_reader import InputReader
-from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
+from transaction_commands import DepositCommand, WithdrawCommand, TransferCommand
 
 import csv
 
 _command_factories = dict(
     deposit  = lambda data: DepositCommand(int(data['to']), float(data['amount'])),
-    payment  = lambda data: PaymentCommand(int(data['from']), float(data['amount'])),
+    withdraw  = lambda data: WithdrawCommand(int(data['from']), float(data['amount'])),
     transfer = lambda data: TransferCommand(int(data['from']), int(data['to']), float(data['amount'])),
 )
 
@@ -40,7 +40,7 @@ class CSVInputReader(InputReader):
                 if dict_row['from'] == '':
                     return 'deposit'
                 elif dict_row['to'] == '':
-                    return 'payment'
+                    return 'withdraw'
                 return 'transfer'
 
         return Iterator(self.__head, self.__data)

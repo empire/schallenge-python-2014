@@ -2,7 +2,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
 from readers import JsonInputReader
-from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
+from transaction_commands import DepositCommand, WithdrawCommand, TransferCommand
 from mock import patch
 import pytest
 
@@ -18,7 +18,7 @@ def test_open(json_mock):
 
 @pytest.fixture(scope="function", params=[
     ({'amount': 2.0,  'type': 'deposit',  'account_id': 3},      DepositCommand(3,  2)),
-    ({'amount': 5.0,  'type': 'payment',  'account_id': 7},      PaymentCommand(7,  5)),
+    ({'amount': 5.0,  'type': 'Withdraw',  'account_id': 7},     WithdrawCommand(7,  5)),
     ({'amount': 11.0, 'type': 'transfer', 'from': 13, 'to': 17}, TransferCommand(from_account=13, to_account=17, amount=11)),
 
 ])

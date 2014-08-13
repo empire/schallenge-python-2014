@@ -2,7 +2,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
 from readers import CSVInputReader
-from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
+from transaction_commands import DepositCommand, WithdrawCommand, TransferCommand
 from mock import patch
 import pytest
 
@@ -18,7 +18,7 @@ def test_open(csv_mock):
 
 @pytest.fixture(scope="function", params=[
     (['', 3,  2],  DepositCommand(3,  2)),
-    ([7,  '', 5],  PaymentCommand(7,  5)),
+    ([7,  '', 5],  WithdrawCommand(7,  5)),
     ([13, 17, 11], TransferCommand(from_account=13, to_account=17, amount=11)),
 ])
 def test_iter_args(request):

@@ -1,11 +1,11 @@
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 from input_reader import InputReader
-from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
+from transaction_commands import DepositCommand, WithdrawCommand, TransferCommand
 
 _command_factories = dict(
     deposit  = lambda data: DepositCommand(int(data[1]), float(data[2])),
-    payment  = lambda data: PaymentCommand(int(data[1]), float(data[2])),
+    withdraw  = lambda data: WithdrawCommand(int(data[1]), float(data[2])),
     transfer = lambda data: TransferCommand(int(data[1]), int(data[4]), float(data[2])),
 )
 
@@ -35,8 +35,8 @@ class TXTInputReader(InputReader):
                 """
                 if row_data[0] == 'Deposit':
                     return 'deposit'
-                elif row_data[0] == 'Payment':
-                    return 'payment'
+                elif row_data[0] == 'Withdraw':
+                    return 'withdraw'
                 return 'transfer'
 
         return Iterator(self.__data)

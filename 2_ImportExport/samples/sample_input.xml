@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transactions>
    <deposit>
-      <account_id>1234567890123456</account_id>
-      <amount>20000.1</amount>
+      <account_id>12345678901234566</account_id>
+      <amount>20000.0</amount>
    </deposit>
    <deposit>
-      <account_id>5554567890123456</account_id>
-      <amount>20000.2</amount>
+      <account_id>55545678901234566</account_id>
+      <amount>20000.0</amount>
    </deposit>
-   <payment>
-      <account_id>1234567890123456</account_id>
-      <amount>20000.3</amount>
-   </payment>
+   <Withdraw>
+      <account_id>12345678901234566</account_id>
+      <amount>20000.0</amount>
+   </Withdraw>
    <transfer>
-      <from>5554567890123456</from>
-      <to>1234567890123456</to>
-      <amount>20000.4</amount>
+      <from>55545678901234566</from>
+      <to>12345678901234566</to>
+      <amount>20000.0</amount>
    </transfer>
 </transactions>

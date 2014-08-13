@@ -1,14 +1,14 @@
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 from input_reader import InputReader
-from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
+from transaction_commands import DepositCommand, WithdrawCommand, TransferCommand
 
 from xml.dom import minidom
 
 from xml.sax import ContentHandler, make_parser, handler
 
 class TransactionHandler(ContentHandler):
-    __main_tags = set(['deposit', 'transactions', 'payment', 'transfer'])
+    __main_tags = set(['deposit', 'transactions', 'withdraw', 'transfer'])
     def __init__(self):
         self.__data = {}
         self.commands = []
@@ -18,6 +18,7 @@ class TransactionHandler(ContentHandler):
 
     # Call when an element starts
     def startElement(self, tag, attributes):
+        tag = tag.lower()
         self.__current_tag = tag
         if tag in self.__main_tags:
             self.__data = {}
@@ -26,12 +27,13 @@ class TransactionHandler(ContentHandler):
         assert tag in ['account_id', 'amount', 'from', 'to']
 
     def endElement(self, tag):
+        tag = tag.lower()
         if 'transactions' == tag:
             pass
         elif 'deposit' == tag:
             self.commands.append(DepositCommand(int(self.__data['account_id']), float(self.__data['amount'])))
-        elif 'payment' == tag:
-            self.commands.append(PaymentCommand(int(self.__data['account_id']), float(self.__data['amount'])))
+        elif 'withdraw' == tag:
+            self.commands.append(WithdrawCommand(int(self.__data['account_id']), float(self.__data['amount'])))
         elif 'transfer' == tag:
             self.commands.append(TransferCommand(int(self.__data['from']), int(self.__data['to']), float(self.__data['amount'])))
         else:
