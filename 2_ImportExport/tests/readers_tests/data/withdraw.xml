@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transactions>
-   <payment>
+   <Withdraw>
       <account_id>13</account_id>
       <amount>11.0</amount>
-   </payment>
-   <payment>
+   </Withdraw>
+   <Withdraw>
       <account_id>19</account_id>
       <amount>17.0</amount>
-   </payment>
+   </Withdraw>
 </transactions>

@@ -3,7 +3,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 from transaction_command import TransactionCommand
 from lib import TransactionRepository
 
-class PaymentCommand(TransactionCommand):
+class WithdrawCommand(TransactionCommand):
     def __init__(self, account, amount):
         self.__account = account
         self.__amount = amount
