@@ -13,10 +13,10 @@ def test_open():
 
 
 @pytest.fixture(scope="function", params=[
-    ('  Deposit   3    2.0\r\f\n',  DepositCommand(3,  2)),
-    ('Deposit  3  2.0',       DepositCommand(3,  2)),
-    ('Payment  7  5.0',       PaymentCommand(7,  5)),
-    ('Transfer 13 11.0 > 17', TransferCommand(from_account=13, to_account=17, amount=11)),
+    ('  Deposit   3    2.0  \r\f\n',  DepositCommand(3,  2)),
+    ('Deposit  3  2.0\n',       DepositCommand(3,  2)),
+    ('Payment  7  5.0\n',       PaymentCommand(7,  5)),
+    ('Transfer 13 11.0 > 17\n', TransferCommand(from_account=13, to_account=17, amount=11)),
 ])
 def test_iter_args(request):
     return request.param

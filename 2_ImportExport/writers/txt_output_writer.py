@@ -16,3 +16,6 @@ class TXTOutputWriter(OutputWriter):
         value = output.getvalue()
         output.close()
         return value
+
+    def supported_format(self):
+        return 'txt'

@@ -15,3 +15,5 @@ class JSONOutputWriter(OutputWriter):
 
         return json.dumps(dict(accounts_delta=deltas))
 
+    def supported_format(self):
+        return 'json'

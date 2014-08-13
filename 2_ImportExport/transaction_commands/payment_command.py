@@ -12,4 +12,4 @@ class PaymentCommand(TransactionCommand):
         """
         :type repository: TransactionRepository
         """
-        repository.add_count(self.__account, -self.__amount)
+        repository.add_amount(self.__account, -self.__amount)

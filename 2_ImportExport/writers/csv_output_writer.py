@@ -17,3 +17,6 @@ class CSVOutputWriter(OutputWriter):
         value = output.getvalue()
         output.close()
         return value
+
+    def supported_format(self):
+        return 'csv'

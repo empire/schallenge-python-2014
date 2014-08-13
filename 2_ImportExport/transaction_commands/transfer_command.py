@@ -13,5 +13,5 @@ class TransferCommand(TransactionCommand):
         """
         :type repository: TransactionRepository
         """
-        repository.add_count(self.__from_account, -self.__amount)
-        repository.add_count(self.__to_account,    self.__amount)
+        repository.add_amount(self.__from_account, -self.__amount)
+        repository.add_amount(self.__to_account,    self.__amount)
