@@ -1,22 +1,20 @@
-__author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
-
+from writers import XMLOutputWriter
 from mock import patch
 import pytest
 from tests.writers_tests import sample_data
+from xml.dom.minidom import parse, parseString
 
-from writers import JSONOutputWriter
-import json
+__author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
+
 
 def test_generate():
-    writer = JSONOutputWriter()
+    writer = XMLOutputWriter()
     output = writer.generate(sample_data)
-    assert json.loads(output) == json.loads('''
-        {
-            "accounts_delta":
-            [
-                {"amount": 2.0, "account_id": 1001},
-                {"amount": -3.0, "account_id": 1002},
-                {"amount": 0.0, "account_id": 1003},
-                {"amount": 7.0, "account_id": 1004}
-            ]
-        }''')
+
+    assert output == '''<?xml version='1.0' encoding='UTF-8'?>\n''' + \
+    '''<accounts_delta>''' + \
+    '''<account><id>1001</id><amount>2.0</amount></account>'''  + \
+    '''<account><id>1002</id><amount>-3.0</amount></account>''' + \
+    '''<account><id>1003</id><amount>0.0</amount></account>'''  + \
+    '''<account><id>1004</id><amount>7.0</amount></account>'''  + \
+    '''</accounts_delta>'''

@@ -1,3 +1,4 @@
-from json_output_writer import JSONOutputWriter
-from txt_output_writer import TXTOutputWriter
-from csv_output_writer import CSVOutputWriter
+from writers.json_output_writer import JSONOutputWriter
+from writers.txt_output_writer import TXTOutputWriter
+from writers.csv_output_writer import CSVOutputWriter
+from writers.xml_output_writer import XMLOutputWriter
