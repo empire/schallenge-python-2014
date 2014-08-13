@@ -7,12 +7,6 @@ from xml.dom import minidom
 
 from xml.sax import ContentHandler, make_parser, handler
 
-_command_factories = dict(
-    deposit  = lambda data: DepositCommand(data['to'], data['amount']),
-    payment  = lambda data: PaymentCommand(data['from'], data['amount']),
-    transfer = lambda data: TransferCommand(data['from'], data['to'], data['amount']),
-)
-
 class TransactionHandler(ContentHandler):
     __main_tags = set(['deposit', 'transactions', 'payment', 'transfer'])
     def __init__(self):
