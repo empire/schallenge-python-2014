@@ -45,5 +45,8 @@ class CSVInputReader(InputReader):
 
         return Iterator(self.__head, self.__data)
 
+    def supported_format(self):
+        return 'csv'
+
     def close(self):
         pass

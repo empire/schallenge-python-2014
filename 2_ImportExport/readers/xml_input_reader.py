@@ -62,5 +62,8 @@ class XMLInputReader(InputReader):
     def __iter__(self):
         return iter(self.__commands)
 
+    def supported_format(self):
+        return 'xml'
+
     def close(self):
         pass

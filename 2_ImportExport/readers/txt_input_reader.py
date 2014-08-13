@@ -41,5 +41,8 @@ class TXTInputReader(InputReader):
 
         return Iterator(self.__data)
 
+    def supported_format(self):
+        return 'txt'
+
     def close(self):
         pass

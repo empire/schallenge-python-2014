@@ -29,5 +29,8 @@ class JsonInputReader(InputReader):
 
         return Iterator(self.__data)
 
+    def supported_format(self):
+        return 'json'
+
     def close(self):
         pass
