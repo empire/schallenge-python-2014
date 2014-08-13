@@ -1,11 +1,6 @@
+from lib.analysis_transactions import analysis_transactions
+
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
-from readers import JsonInputReader, CSVInputReader, TXTInputReader
-
-reader = TXTInputReader()
-reader.open(open('samples/sample_input.txt'))
-
-for command in reader:
-    print command
-
-reader.close()
+analysis_transactions('samples/sample_input.csv', '/tmp/generated_output.xml')
+analysis_transactions('samples/sample_input.xml', '/tmp/generated_output.csv')

@@ -2,19 +2,19 @@
 <transactions>
    <deposit>
       <account_id>1234567890123456</account_id>
-      <amount>20000.0</amount>
+      <amount>20000.1</amount>
    </deposit>
    <deposit>
       <account_id>5554567890123456</account_id>
-      <amount>20000.0</amount>
+      <amount>20000.2</amount>
    </deposit>
    <payment>
       <account_id>1234567890123456</account_id>
-      <amount>20000.0</amount>
+      <amount>20000.3</amount>
    </payment>
    <transfer>
       <from>5554567890123456</from>
       <to>1234567890123456</to>
-      <amount>20000.0</amount>
+      <amount>20000.4</amount>
    </transfer>
 </transactions>

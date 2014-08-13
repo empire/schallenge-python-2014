@@ -6,9 +6,9 @@ from transaction_commands import DepositCommand, PaymentCommand, TransferCommand
 import csv
 
 _command_factories = dict(
-    deposit  = lambda data: DepositCommand(data['to'], data['amount']),
-    payment  = lambda data: PaymentCommand(data['from'], data['amount']),
-    transfer = lambda data: TransferCommand(data['from'], data['to'], data['amount']),
+    deposit  = lambda data: DepositCommand(int(data['to']), float(data['amount'])),
+    payment  = lambda data: PaymentCommand(int(data['from']), float(data['amount'])),
+    transfer = lambda data: TransferCommand(int(data['from']), int(data['to']), float(data['amount'])),
 )
 
 class CSVInputReader(InputReader):

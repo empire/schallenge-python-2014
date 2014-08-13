@@ -1,4 +1,4 @@
-from lib import transaction_repository
+from lib import _write_output
 from lib.exceptions import FileFormatNotSupported
 from lib.path import extract_file_extension
 from lib.transaction_repository import repository
@@ -11,9 +11,11 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 def analysis_transactions(input_file, output_file):
     reader = _get_reader(input_file)
-    writer = _get_writer(output_file)sdfa
+    writer = _get_writer(output_file)
 
-    analysis_transactions_with_reader_writer(reader, writer)
+    content = analysis_transactions_with_reader_writer(reader, writer)
+    _write_output(output_file, content)
+
 
 def analysis_transactions_with_reader_writer(reader, writer):
     for command in reader:
