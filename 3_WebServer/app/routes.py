@@ -3,7 +3,7 @@ import datetime
 from http import router
 from http.routing.route import Route
 from http.routing.router import error_handler
-from server.server_requests_logger import ServerRequestLogger
+from http_server.server_requests_logger import ServerRequestLogger
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 

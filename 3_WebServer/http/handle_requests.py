@@ -5,7 +5,7 @@ from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.request_builder import process_http_message
 from http.routing.router import has_error_handler, error_handler, get_error_handler
-from server.server_requests_logger import ServerRequestLogger
+from http_server.server_requests_logger import ServerRequestLogger
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 

@@ -1,6 +1,6 @@
 import StringIO
 from http.handle_requests import handle_user_request
-from server.server_requests_logger import ServerRequestLogger
+from http_server.server_requests_logger import ServerRequestLogger
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
