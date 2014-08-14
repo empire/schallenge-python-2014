@@ -45,15 +45,12 @@ def handle_action(action, request, response):
 
     if None == result:
         response.status = 204
-        response.content_type = 'text/html'
         response.content = ''
-
-        return response
-
-    if type(result) != str:
+    elif type(result) != str:
         return result
+    else:
+        response.content = result
 
-    response.content = result
     if None == response.status:
         response.status = 200
 

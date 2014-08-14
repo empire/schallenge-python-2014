@@ -3,7 +3,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 class HTTPResponse:
     def __init__(self):
-        self.__status = 'GET'
+        self.__status = None
         self.__content = None
         self.__content_type = None
         self.__code = None
@@ -30,6 +30,7 @@ class HTTPResponse:
 
     @content_type.setter
     def content_type(self, content_type):
+        raise content_type
         self.__content_type = content_type
 
     @property

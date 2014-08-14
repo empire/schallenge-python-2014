@@ -28,9 +28,17 @@ def test_handle_http_request(router):
     assert resp == 'response'
 
 
+def build_mock_response():
+    response = Mock(HTTPResponse)
+    response.status = None
+    response.content_type = None
+    return response
+
+
 def test_handle_http_request_no_content():
     request = Mock(HTTPRequest)
-    response = Mock(HTTPResponse)
+    response = build_mock_response()
+
     action = MagicMock()
     action.return_value = None
 
@@ -44,7 +52,7 @@ def test_handle_http_request_no_content():
 
 def test_handle_http_request_no_string_content():
     request = Mock(HTTPRequest)
-    response = Mock(HTTPResponse)
+    response = build_mock_response()
     action = MagicMock()
     action.return_value = 123
 
@@ -55,9 +63,7 @@ def test_handle_http_request_no_string_content():
 
 def test_handle_http_request_with_string_content_not_set_status():
     request = Mock(HTTPRequest)
-    response = Mock(HTTPResponse)
-    response.status = None
-    response.content_type = None
+    response = build_mock_response()
     action = MagicMock()
     action.return_value = 'response'
 
