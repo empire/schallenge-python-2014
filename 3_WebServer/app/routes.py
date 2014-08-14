@@ -1,6 +1,7 @@
 import StringIO
 import datetime
 from http import router
+from http.helpers.content_generator import handle_file, handle_path
 from http.routing.route import Route
 from http.routing.router import error_handler
 from http_server.server_requests_logger import ServerRequestLogger
@@ -11,9 +12,7 @@ def hello_world(request, response):
     return 'hello world'
 
 def show_pic(request, response):
-    response.content_type = 'image/jpeg'
-
-    return ''.join(bytes_from_file('web/assets/wikipedia-logo.jpg'))
+    return handle_file('web/assets/wikipedia-logo.jpg', request, response)
 
 def show_clients(request, response):
     return get_clients_html(request, response, ServerRequestLogger.logs())
@@ -70,11 +69,17 @@ def time_php(request, response):
     print >>io, 'Host: ', request.headers['Host'].split(':')[0]
     return io.getvalue()
 
+def server_show(request, response):
+    path = request.path[1:]
+    return handle_path(path, request, response)
+
 router.register_route(Route('GET', '/', hello_world))
 router.register_route(Route('GET', '/pic', show_pic))
 router.register_route(Route('GET', '/clients.html', show_clients))
 router.register_route(Route('GET', '/my.aspx', my_aspx))
 router.register_route(Route('GET', '/time.php', time_php))
+router.register_route(Route('GET', '/server', server_show))
+router.register_route(Route('GET', '/server/.*', server_show))
 
 @error_handler(404)
 def handler_404(request, response):
@@ -115,12 +120,3 @@ def handler_501(request, response):
 </html>
     '''.format(request=request, log=get_clients_html(request, response))
 
-def bytes_from_file(filename):
-    with open(filename, "rb") as f:
-        while True:
-            chunk = f.read(1024)
-            if chunk:
-                for b in chunk:
-                    yield b
-            else:
-                break

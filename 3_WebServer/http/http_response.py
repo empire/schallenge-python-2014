@@ -4,7 +4,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 class HTTPResponse:
     def __init__(self):
         self.__status = None
-        self.__content = None
+        self.__content = ''
         self.__content_type = None
         self.__code = None
 

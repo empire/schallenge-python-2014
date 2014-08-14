@@ -14,10 +14,11 @@ class Route:
 
 
     def matched(self, method, path):
+        clean_path = path.split('?')[0].split('#')[0]
         if method != self.__method:
             return False
 
-        if self.__pattern_compiled.match(path):
+        if self.__pattern_compiled.match(clean_path):
             return True
 
         return False

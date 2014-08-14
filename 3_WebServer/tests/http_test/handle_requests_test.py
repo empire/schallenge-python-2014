@@ -5,6 +5,7 @@ from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.routing.route import Route
 from mock import Mock, patch, MagicMock, DEFAULT
+from tests.http_test import mock_http_request, mock_http_response
 
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
@@ -31,16 +32,9 @@ def test_handle_http_request(router):
     assert resp == 'response'
 
 
-def build_mock_response():
-    response = Mock(HTTPResponse)
-    response.status = None
-    response.content_type = None
-    return response
-
-
 def test_handle_http_request_no_content():
     request = mock_http_request()
-    response = build_mock_response()
+    response = mock_http_response()
 
     action = MagicMock()
     action.return_value = None
@@ -55,26 +49,28 @@ def test_handle_http_request_no_content():
 
 def test_handle_http_request_no_string_content():
     request = mock_http_request()
-    response = build_mock_response()
+    response = mock_http_response()
     action = MagicMock()
-    action.return_value = 123
+    action.return_value = '123'
 
     resp = handle_action(action, request, response)
 
     action.assert_called_once_with(request, response)
-    assert 123 == resp
+    assert '123' == resp.content
 
 def test_handle_http_request_with_string_content_not_set_status():
     request = mock_http_request()
-    response = build_mock_response()
+    response = mock_http_response()
+    response.status = None
     action = MagicMock()
     action.return_value = 'response'
+    assert response.status != 200
 
     resp = handle_action(action, request, response)
 
     action.assert_called_once_with(request, response)
     assert resp == response
-    assert resp.status == 200
+    assert response.status == 200
     assert resp.content_type == 'text/html'
     assert resp.content == 'response'
 
@@ -99,6 +95,7 @@ def test_handle_user_request():
                 process_http_message=DEFAULT,
                 handle_http_request=DEFAULT,
                 HTTPRequest=DEFAULT,
+                ServerRequestLogger=DEFAULT,
                 handle_response=DEFAULT) as values:
         values['process_http_message'].return_value = request = mock_http_request()
         values['HTTPRequest'].return_value = request = mock_http_request()
@@ -109,6 +106,7 @@ def test_handle_user_request():
         values['process_http_message'].assert_called_once_with(request, 'abc')
         values['handle_http_request'].assert_called_once_with(request)
         values['handle_response'].assert_called_once_with(response)
+        values['ServerRequestLogger'].log.assert_called_once_with(request, response)
 
 def test_handle_user_request_with_exception():
     with patch.multiple('http.handle_requests',
@@ -181,7 +179,7 @@ def test_handle_http_exception_with_handler():
         values['get_error_handler'].return_value = handler = MagicMock()
 
         with patch('http.handle_requests.HTTPResponse') as HTTPResponse_Mock:
-            HTTPResponse_Mock.return_value = response = build_mock_response()
+            HTTPResponse_Mock.return_value = response = mock_http_response()
             resp = handle_http_exception(request, e)
 
             values['has_error_handler'].assert_called_once_with(123)
@@ -191,7 +189,4 @@ def test_handle_http_exception_with_handler():
 
         # assert resp == response
 
-def mock_http_request():
-    request = Mock(HTTPRequest)
-    request.__getitem__ = MagicMock()
-    return request
+

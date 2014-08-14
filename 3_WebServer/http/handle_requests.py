@@ -45,18 +45,17 @@ def handle_http_request(request):
 
     return handle_action(action, request, response)
 
+
 def handle_action(action, request, response):
     result = action(request, response)
 
-    if None == result:
-        response.content = ''
-    elif type(result) != str:
-        return result
-    else:
+    if type(result) == str:
         response.content = result
+    elif isinstance(result, HTTPResponse):
+        response = result
 
     if None == response.status:
-        response.status = 204 if None == result else 200
+        response.status = 204 if not response.content else 200
 
     if None == response.content_type:
         response.content_type = 'text/html'

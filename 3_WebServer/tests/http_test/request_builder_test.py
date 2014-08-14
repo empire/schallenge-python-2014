@@ -5,6 +5,7 @@ from http.request_builder import process_http_message, parse_initial_line, parse
     _check_method
 from mock import patch, Mock, DEFAULT, MagicMock
 import pytest
+from tests.http_test import mock_http_request
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
@@ -132,7 +133,3 @@ def test_check_method():
     with pytest.raises(MethodNotAllowedHttpException):
         _check_method('POST')
 
-def mock_http_request():
-    request = Mock(HTTPRequest)
-    request.__getitem__ = MagicMock()
-    return request

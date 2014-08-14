@@ -24,6 +24,8 @@ def test_matched_simple_path():
     assert Route('GET', '', lambda x:x).matched('GET', '')
     assert Route('GET', '/pic', lambda x:x).matched('GET', '/pic')
     assert Route('GET', '/time.php', lambda x:x).matched('GET', '/time.php')
+    assert Route('GET', '/welcome', lambda x:x).matched('GET', '/welcome?id=1')
+    assert Route('GET', '/welcome', lambda x:x).matched('GET', '/welcome#link')
 
 def test_matched_pattern_path():
     assert Route('GET', '/pi.*', lambda x:x).matched('GET', '/pic')
