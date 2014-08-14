@@ -19,3 +19,7 @@ class MethodNotAllowedHttpException(HttpExceptionBase):
 class NotImplementedHttpException(HttpExceptionBase):
     def __init__(self):
         HttpExceptionBase.__init__(self, 501, 'Not Implemented')
+
+class NotFoundHttpException(HttpExceptionBase):
+    def __init__(self):
+        HttpExceptionBase.__init__(self, 404, 'Not Found')
