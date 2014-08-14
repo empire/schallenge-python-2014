@@ -1,5 +1,6 @@
-from http.exceptions.http_exception import BadRequestHttpException
-from http.handle_requests import handle_user_request, handle_http_request, handle_http_response, handle_action
+from http.exceptions.http_exception import BadRequestHttpException, HttpExceptionBase
+from http.handle_requests import handle_user_request, handle_http_request, handle_http_response, handle_action, \
+    handle_http_exception
 from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.routing.route import Route
@@ -20,7 +21,9 @@ def test_handle_http_request(router):
     with patch.multiple('http.handle_requests', handle_action=DEFAULT, HTTPResponse=DEFAULT) as values:
         values['handle_action'].return_value = 'response'
         values['HTTPResponse'].return_value = response = Mock(HTTPResponse)
+
         resp = handle_http_request(request)
+
         values['handle_action'].assert_called_once_with(action, request, response)
 
     router.find_route.assert_called_once_with('GET', '/welcome')
@@ -123,7 +126,7 @@ def test_handle_user_request_with_exception():
 
         values['ServerRequestLogger'].log.assert_called_once()
         values['process_http_message'].assert_called_once_with(request, 'abc')
-        values['handle_http_exception'].assert_called_once_with(e)
+        values['handle_http_exception'].assert_called_once_with(request, e)
         values['handle_response'].assert_called_once_with(response)
 
 def test_handle_http_response():
@@ -145,6 +148,48 @@ def test_handle_http_response():
     ]
     assert value == '\n'.join(content_array)
 
+
+def test_handle_http_exception():
+    e = Mock(HttpExceptionBase)
+    e.status = 1234
+    e.message = 'message'
+
+    request = mock_http_request()
+
+    with patch.multiple('http.handle_requests', has_error_handler=DEFAULT, get_error_handler=DEFAULT) as values:
+        values['has_error_handler'].return_value = False
+        resp = handle_http_exception(request, e)
+        values['has_error_handler'].assert_called_once()
+        values['get_error_handler'].assert_has_calls([])
+
+    assert isinstance(resp, HTTPResponse)
+    assert resp.status == 1234
+    assert resp.code == 'message'
+    assert resp.content_type == 'text/html'
+
+def test_handle_http_exception_with_handler():
+    e = Mock(HttpExceptionBase)
+    e.status = 123
+
+    request = mock_http_request()
+
+    with patch.multiple('http.handle_requests',
+                has_error_handler=DEFAULT,
+                handle_action=DEFAULT,
+                get_error_handler=DEFAULT) as values:
+        values['has_error_handler'].return_value = True
+        values['get_error_handler'].return_value = handler = MagicMock()
+
+        with patch('http.handle_requests.HTTPResponse') as HTTPResponse_Mock:
+            HTTPResponse_Mock.return_value = response = build_mock_response()
+            resp = handle_http_exception(request, e)
+
+            values['has_error_handler'].assert_called_once_with(123)
+            values['get_error_handler'].assert_called_once_with(123)
+            values['handle_action'].assert_called_once_with(handler, request, response)
+
+
+        # assert resp == response
 
 def mock_http_request():
     request = Mock(HTTPRequest)

@@ -16,3 +16,20 @@ class Router:
 
     def register_route(self, route):
         self.__routes.append(route)
+
+__error_handlers = dict()
+def error_handler(code):
+    def decorator(fnc):
+        __error_handlers[code] = fnc
+        def wrapper(*args, **kws):
+            return fnc(*args, **kws)
+        return wrapper
+    return decorator
+
+
+def has_error_handler(code):
+    return code in __error_handlers
+
+
+def get_error_handler(code):
+    return __error_handlers[code]

@@ -1,3 +1,4 @@
+import StringIO
 from http.handle_requests import handle_user_request
 from server.server_requests_logger import ServerRequestLogger
 
@@ -14,8 +15,16 @@ PORT = 8181  # Arbitrary non-privileged port
 # Function for handling connections. This will be used to create threads
 def client_thread(conn, client_ip, client_port):
     # Receiving from client, handle request and back the resposne
-    data = conn.recv(1024)
-    reply = handle_user_request(data, client_ip=client_ip, client_port=client_port)
+    message = ''
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        message += data
+        if '\r\n\r\n' in message or '\n\n' in message:
+            break
+
+    reply = handle_user_request(message, client_ip=client_ip, client_port=client_port)
     if data:
         conn.sendall(reply)
 

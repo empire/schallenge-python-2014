@@ -4,6 +4,7 @@ from http.exceptions.http_exception import HttpExceptionBase
 from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.request_builder import process_http_message
+from http.routing.router import has_error_handler, error_handler, get_error_handler
 from server.server_requests_logger import ServerRequestLogger
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
@@ -14,7 +15,7 @@ def handle_user_request(message, *args, **kwargs):
         process_http_message(request, message, *args, **kwargs)
         response = handle_http_request(request)
     except HttpExceptionBase, e:
-        response = handle_http_exception(e)
+        response = handle_http_exception(request, e)
 
     ServerRequestLogger.log(request, response)
     return handle_response(response)
@@ -48,7 +49,6 @@ def handle_action(action, request, response):
     result = action(request, response)
 
     if None == result:
-        response.status = 204
         response.content = ''
     elif type(result) != str:
         return result
@@ -56,7 +56,7 @@ def handle_action(action, request, response):
         response.content = result
 
     if None == response.status:
-        response.status = 200
+        response.status = 204 if None == result else 200
 
     if None == response.content_type:
         response.content_type = 'text/html'
@@ -64,10 +64,14 @@ def handle_action(action, request, response):
     return response
 
 
-def handle_http_exception(e):
+def handle_http_exception(request, e):
     response = HTTPResponse()
-    response.status = e.status
+    response.status = status = e.status
     response.code = e.message
     response.content_type = 'text/html'
+    
+    if has_error_handler(status):
+        return handle_action(get_error_handler(status), request, response)
+    
     response.content = '<html><body>%d %s</body></html>'%(e.status, e.message,)
     return response

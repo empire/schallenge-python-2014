@@ -1,6 +1,8 @@
-from http.exceptions.http_exception import BadRequestHttpException, NotImplementedHttpException
+from http.exceptions.http_exception import BadRequestHttpException, NotImplementedHttpException, \
+    MethodNotAllowedHttpException
 from http.http_request import HTTPRequest
-from http.request_builder import process_http_message, parse_initial_line, parse_headers, set_request_headers
+from http.request_builder import process_http_message, parse_initial_line, parse_headers, set_request_headers, \
+    _check_method
 from mock import patch, Mock, DEFAULT, MagicMock
 import pytest
 
@@ -8,9 +10,9 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
 def test_parse_initial_line_invalid_line():
-    invalid_line = 'blah blah blah'
-    with pytest.raises(NotImplementedHttpException):
-        parse_initial_line(invalid_line)
+    assert parse_initial_line('blah blah blah blah') == ('blah', 'blah blah', 'blah')
+    assert parse_initial_line('blah') == ('blah', None, None)
+    assert parse_initial_line('blah blah') == ('blah', 'blah', None)
 
 def test_parse_initial_line_without_path():
     invalid_line = 'GET'
@@ -105,22 +107,30 @@ def test_process_http_message():
     with patch.multiple('http.request_builder',
                         parse_initial_line=DEFAULT,
                         build_request=DEFAULT,
+                        _check_method=DEFAULT,
                         set_request_headers=DEFAULT) as values:
+        # Character \r is removed from line #2, #3
         message = '''POST /index.html HTTP/1.1\r
-User-Agent: Ocean/14.08.01\r
-Host: localhost:8181\r
+User-Agent: Ocean/14.08.01
+Host: localhost:8181
 Accept: text/xml\r
 '''
         values['parse_initial_line'].return_value = 'POST', '/index.html', 'HTTP/1.1'
         request = mock_http_request()
+
         result = process_http_message(request, message)
+
         values['parse_initial_line'].assert_called_once_with('POST /index.html HTTP/1.1')
         values['build_request'].assert_called_once_with(request, 'POST', '/index.html')
+        values['_check_method'].assert_called_once_with('POST')
         values['set_request_headers'].assert_called_once_with(request, [
             'User-Agent: Ocean/14.08.01', 'Host: localhost:8181', 'Accept: text/xml'
         ])
         assert result == None
 
+def test_check_method():
+    with pytest.raises(MethodNotAllowedHttpException):
+        _check_method('POST')
 
 def mock_http_request():
     request = Mock(HTTPRequest)
