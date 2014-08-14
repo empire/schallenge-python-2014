@@ -106,10 +106,10 @@ def test_process_http_message():
                         parse_initial_line=DEFAULT,
                         build_request=DEFAULT,
                         set_request_headers=DEFAULT) as values:
-        message = '''POST /index.html HTTP/1.1
-User-Agent: Ocean/14.08.01
-Host: localhost:8181
-Accept: text/xml
+        message = '''POST /index.html HTTP/1.1\r
+User-Agent: Ocean/14.08.01\r
+Host: localhost:8181\r
+Accept: text/xml\r
 '''
         values['parse_initial_line'].return_value = 'POST', '/index.html', 'HTTP/1.1'
         values['build_request'].return_value = request = Mock(HTTPRequest)

@@ -4,9 +4,17 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
 class HttpExceptionBase(Exception):
-    def __init__(self, code, message):
-        self.__code = code
+    def __init__(self, status, message):
+        self.__status = status
         self.__message = message
+
+    @property
+    def status(self):
+        return self.__status
+
+    @property
+    def message(self):
+        return self.__message
 
 class BadRequestHttpException(HttpExceptionBase):
     def __init__(self):

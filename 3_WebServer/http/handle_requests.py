@@ -1,6 +1,7 @@
 import StringIO
 from http import router
 from http.exceptions.http_exception import HttpExceptionBase
+from http.http_response import HTTPResponse
 from http.request_builder import process_http_message
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
@@ -38,4 +39,9 @@ def handle_http_request(request):
 
 
 def handle_http_exception(e):
-    return 2
+    response = HTTPResponse()
+    response.status = e.status
+    response.code = e.message
+    response.content_type = 'text/html'
+    response.content = '<html><body>%d %s</body></html>'%(e.status, e.message,)
+    return response

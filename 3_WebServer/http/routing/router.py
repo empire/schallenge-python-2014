@@ -11,6 +11,7 @@ class Router:
         for route in self.__routes:
             if route.matched(method, path):
                 return route
+
         raise NotFoundHttpException()
 
     def register_route(self, route):

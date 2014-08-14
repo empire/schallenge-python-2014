@@ -1,3 +1,5 @@
+from http.handle_requests import handle_user_request
+
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 import socket
@@ -11,18 +13,21 @@ PORT = 8181  # Arbitrary non-privileged port
 # Function for handling connections. This will be used to create threads
 def client_thread(conn):
     #Sending message to connected client
-    conn.send('Welcome to the server. Type something and hit enter\n')  #send only takes string
+    # conn.send('Welcome to the server. Type something and hit enter\n')  #send only takes string
 
     #infinite loop so that function do not terminate and thread do not end.
     while True:
 
         #Receiving from client
         data = conn.recv(1024)
-        reply = data
+        reply = handle_user_request(data)
         if not data:
             break
 
         conn.sendall(reply)
+
+        # No need wait for reply from browser
+        break
 
     #came out of loop
     conn.close()

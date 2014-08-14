@@ -6,6 +6,7 @@ class HTTPResponse:
         self.__status = 'GET'
         self.__content = None
         self.__content_type = None
+        self.__code = None
 
     @property
     def status(self):
@@ -33,7 +34,11 @@ class HTTPResponse:
 
     @property
     def code(self):
-        return http_codes[self.status]
+        return self.__code if self.__code else http_codes[self.status]
+
+    @code.setter
+    def code(self, code):
+        self.__code = code
 
     @property
     def content_length(self):

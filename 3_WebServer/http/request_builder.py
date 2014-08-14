@@ -6,7 +6,7 @@ __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
 def process_http_message(msg):
-    lines = msg.split('\n')
+    lines = msg.split('\r\n')
     initial_line = lines[0]
     method, path, protocol = parse_initial_line(initial_line)
     request = build_request(method, path)
