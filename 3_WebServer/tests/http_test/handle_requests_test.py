@@ -1,5 +1,5 @@
 from http.exceptions.http_exception import BadRequestHttpException
-from http.handle_requests import handle_user_request, handle_http_request, handle_http_response
+from http.handle_requests import handle_user_request, handle_http_request, handle_http_response, handle_action
 from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.routing.route import Route
@@ -15,15 +15,75 @@ def test_handle_http_request(router):
     request.path   = '/welcome'
     request.method = 'GET'
     router.find_route.return_value = route = Mock(Route)
-    route.getAction.return_value = action = MagicMock()
-    action.return_value = response = Mock(HTTPResponse)
+    route.getAction.return_value = action = 'action_handler'
 
-    resp = handle_http_request(request)
+    with patch.multiple('http.handle_requests', handle_action=DEFAULT, HTTPResponse=DEFAULT) as values:
+        values['handle_action'].return_value = 'response'
+        values['HTTPResponse'].return_value = response = Mock(HTTPResponse)
+        resp = handle_http_request(request)
+        values['handle_action'].assert_called_once_with(action, request, response)
 
     router.find_route.assert_called_once_with('GET', '/welcome')
     route.getAction.assert_called_once_with()
-    action.assert_called_once_with(request)
+    assert resp == 'response'
+
+
+def test_handle_http_request_no_content():
+    request = Mock(HTTPRequest)
+    response = Mock(HTTPResponse)
+    action = MagicMock()
+    action.return_value = None
+
+    resp = handle_action(action, request, response)
+
+    action.assert_called_once_with(request, response)
     assert resp == response
+    assert response.status == 204
+    assert response.content_type == 'text/html'
+    assert response.content == ''
+
+def test_handle_http_request_no_string_content():
+    request = Mock(HTTPRequest)
+    response = Mock(HTTPResponse)
+    action = MagicMock()
+    action.return_value = 123
+
+    resp = handle_action(action, request, response)
+
+    action.assert_called_once_with(request, response)
+    assert 123 == resp
+
+def test_handle_http_request_with_string_content_not_set_status():
+    request = Mock(HTTPRequest)
+    response = Mock(HTTPResponse)
+    response.status = None
+    response.content_type = None
+    action = MagicMock()
+    action.return_value = 'response'
+
+    resp = handle_action(action, request, response)
+
+    action.assert_called_once_with(request, response)
+    assert resp == response
+    assert resp.status == 200
+    assert resp.content_type == 'text/html'
+    assert resp.content == 'response'
+
+def test_handle_http_request_with_string_content_and_action_set_status_content_type():
+    request = Mock(HTTPRequest)
+    response = Mock(HTTPResponse)
+    action = MagicMock()
+    action.return_value = content = '<book>resource created</book>'
+    response.status = 201
+    response.content_type = 'text/xml'
+
+    resp = handle_action(action, request, response)
+
+    action.assert_called_once_with(request, response)
+    assert resp == response
+    assert resp.status == 201
+    assert resp.content_type == 'text/xml'
+    assert resp.content == content
 
 def test_handle_user_request():
     with patch.multiple('http.handle_requests',

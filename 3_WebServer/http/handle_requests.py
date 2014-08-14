@@ -37,6 +37,10 @@ def handle_http_request(request):
     route = router.find_route(request.method, request.path)
     action = route.getAction()
     response = HTTPResponse()
+
+    return handle_action(action, request, response)
+
+def handle_action(action, request, response):
     result = action(request, response)
 
     if None == result:
@@ -45,12 +49,16 @@ def handle_http_request(request):
         response.content = ''
 
         return response
+
     if type(result) != str:
         return result
 
     response.content = result
-    response.status = 200
-    response.content_type = 'text/html'
+    if None == response.status:
+        response.status = 200
+
+    if None == response.content_type:
+        response.content_type = 'text/html'
 
     return response
 
