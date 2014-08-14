@@ -62,6 +62,7 @@ def test_handle_http_response():
         'HTTP/1.1 200 OK',
         'Content-Type: text/html',
         'Content-Length: 1234',
+        'Server: Ocean/0.1.1',
         '',
         '<html><body>hi</body></html>'
     ]

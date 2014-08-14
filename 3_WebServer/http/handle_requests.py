@@ -24,6 +24,7 @@ def handle_http_response(response):
     print >>io, 'HTTP/1.1 %d %s' %(response.status, response.code)
     print >>io, 'Content-Type: %s' %(response.content_type,)
     print >>io, 'Content-Length: %d' %(response.content_length,)
+    print >>io, 'Server: Ocean/0.1.1'
     print >>io, ''
     io.write(response.content)
 
