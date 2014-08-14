@@ -45,5 +45,6 @@ class HTTPResponse:
         return len(self.content)
 
 http_codes = {
-    200: 'OK'
+    200: 'OK',
+    204: 'No Content',
 }

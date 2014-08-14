@@ -36,7 +36,23 @@ def handle_http_response(response):
 def handle_http_request(request):
     route = router.find_route(request.method, request.path)
     action = route.getAction()
-    return action(request)
+    response = HTTPResponse()
+    result = action(request, response)
+
+    if None == result:
+        response.status = 204
+        response.content_type = 'text/html'
+        response.content = ''
+
+        return response
+    if type(result) != str:
+        return result
+
+    response.content = result
+    response.status = 200
+    response.content_type = 'text/html'
+
+    return response
 
 
 def handle_http_exception(e):
