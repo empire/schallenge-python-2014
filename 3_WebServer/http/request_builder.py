@@ -5,14 +5,14 @@ from http.http_request import HTTPRequest
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 
-def process_http_message(msg):
+def process_http_message(request, msg, *args, **kwargs):
+    set_request_kwargs(request, **kwargs)
     lines = msg.split('\r\n')
     initial_line = lines[0]
     method, path, protocol = parse_initial_line(initial_line)
-    request = build_request(method, path)
+    build_request(request, method, path)
     set_request_headers(request, filter(lambda x:x, lines[1:]))
 
-    return request
 
 def parse_headers(headers):
     header_bag = dict()
@@ -30,8 +30,10 @@ def set_request_headers(request, headers):
         raise BadRequestHttpException()
     request.headers = headers_dict
 
-def build_request(method, path):
-    request = HTTPRequest()
+def set_request_kwargs(request, **kwargs):
+    request.set_server_kwargs(**kwargs)
+
+def build_request(request, method, path):
     request.method = method
     request.path = path
 

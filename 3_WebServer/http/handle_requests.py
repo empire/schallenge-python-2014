@@ -1,18 +1,22 @@
 import StringIO
 from http import router
 from http.exceptions.http_exception import HttpExceptionBase
+from http.http_request import HTTPRequest
 from http.http_response import HTTPResponse
 from http.request_builder import process_http_message
+from server.server_requests_logger import ServerRequestLogger
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
-def handle_user_request(message):
+def handle_user_request(message, *args, **kwargs):
+    request = HTTPRequest()
     try:
-        request = process_http_message(message)
+        process_http_message(request, message, *args, **kwargs)
         response = handle_http_request(request)
     except HttpExceptionBase, e:
         response = handle_http_exception(e)
 
+    ServerRequestLogger.log(request, response)
     return handle_response(response)
 
 def handle_response(response):

@@ -1,7 +1,7 @@
 from http.exceptions.http_exception import BadRequestHttpException, NotImplementedHttpException
 from http.http_request import HTTPRequest
 from http.request_builder import process_http_message, parse_initial_line, parse_headers, set_request_headers
-from mock import patch, Mock, DEFAULT
+from mock import patch, Mock, DEFAULT, MagicMock
 import pytest
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
@@ -75,7 +75,7 @@ def test_set_request_headers_without_host_must_raise_bad_request_exception(parse
 
     :type parse_headers: mock.MagicMock
     """
-    request = Mock(HTTPRequest)
+    request = mock_http_request()
     headers = 'User-Agent: client/1.2.3'
     headers_bag = {'User-Agent': 'client/1.1.3'}
     parse_headers.return_value = headers_bag
@@ -91,7 +91,7 @@ def test_set_request_headers_with_host(parse_headers):
 
     :type parse_headers: mock.MagicMock
     """
-    request = Mock(HTTPRequest)
+    request = mock_http_request()
     headers = 'Host: localhost:8181'
     headers_bag = {'Host': 'localhost:8181'}
     parse_headers.return_value = headers_bag
@@ -112,12 +112,17 @@ Host: localhost:8181\r
 Accept: text/xml\r
 '''
         values['parse_initial_line'].return_value = 'POST', '/index.html', 'HTTP/1.1'
-        values['build_request'].return_value = request = Mock(HTTPRequest)
-        result = process_http_message(message)
+        request = mock_http_request()
+        result = process_http_message(request, message)
         values['parse_initial_line'].assert_called_once_with('POST /index.html HTTP/1.1')
-        values['build_request'].assert_called_once_with('POST', '/index.html')
+        values['build_request'].assert_called_once_with(request, 'POST', '/index.html')
         values['set_request_headers'].assert_called_once_with(request, [
             'User-Agent: Ocean/14.08.01', 'Host: localhost:8181', 'Accept: text/xml'
         ])
-        assert result == request
+        assert result == None
 
+
+def mock_http_request():
+    request = Mock(HTTPRequest)
+    request.__getitem__ = MagicMock()
+    return request

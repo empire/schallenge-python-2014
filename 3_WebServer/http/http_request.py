@@ -29,3 +29,9 @@ class HTTPRequest(object):
     @headers.setter
     def headers(self, headers):
         self.__headers = headers
+
+    def set_server_kwargs(self, **kwargs):
+        self.__server_kwargs = kwargs
+
+    def __getitem__(self, item):
+        return self.__server_kwargs[item]
