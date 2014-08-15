@@ -6,6 +6,9 @@ __pycache__/
 python-lib/
 flask/lib
 
+*.zip
+*.kate-swp
+
 # C extensions
 *.so
 
