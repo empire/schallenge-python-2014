@@ -1,11 +1,12 @@
 from bs4 import BeautifulSoup
 from mock import Mock, patch, DEFAULT
-from site_parser.first_page import get_categories, extract_categories, pick_random_category
+from site_parser.index_parser import get_categories, extract_categories, pick_random_category
+from tests import mock_BeautifulSoup, mock_link_tag
 
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 def test_pick_random_category():
-    with patch.multiple('site_parser.categories',
+    with patch.multiple('site_parser.index_parser',
                         get_categories=DEFAULT,
                         random=DEFAULT) as values:
         random_mock = values['random']
@@ -23,8 +24,8 @@ def test_pick_random_category():
         assert result == 'c'
 
 def test_get_categories():
-    soup = Mock(BeautifulSoup)
-    with patch.multiple('site_parser.categories',
+    soup = mock_BeautifulSoup()
+    with patch.multiple('site_parser.index_parser',
                         get_base_categories_lists=DEFAULT,
                         extract_categories=DEFAULT) as values:
         get_base_categories_lists_mock = values['get_base_categories_lists']
@@ -53,9 +54,3 @@ def test_extract_categories():
         'http://p30download.com/fa/mobile/category/game/action/',
         'http://p30download.com/fa/tutorial/category/multimedia/'
     ]
-
-
-def mock_link_tag(href):
-    link = Mock()
-    link.attrs = dict(href=href)
-    return link
