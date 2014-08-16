@@ -82,8 +82,13 @@ class PostPageParser:
         """
         Getting download links, download links are located after img that contains
         'http://p30download.com/template/icons/set3/arrow-down.gif' src attribute
+
+        In some pages like http://p30download.com/fa/entry/50159/ download links are not located in download-links,
+           so if there is no img_tags I check all download links.
         """
-        img_tags = self.base_soup.find('', 'download-links').find('p').find_all(src='http://p30download.com/template/icons/set3/arrow-down.gif')
+        img_tags = self.base_soup.find('', 'download-links').find_all(src='http://p30download.com/template/icons/set3/arrow-down.gif')
+        if not img_tags:
+            img_tags = self.base_soup.find_all(src='http://p30download.com/template/icons/set3/arrow-down.gif')
         for img_tag in img_tags:
             a_tag = img_tag.findNext('a')
             yield a_tag.attrs['href']

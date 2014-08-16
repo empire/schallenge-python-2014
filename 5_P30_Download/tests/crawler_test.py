@@ -121,13 +121,11 @@ def test_extract_sample_posts_info():
 
         extract_posts_link_mock.return_value = ['post1', 'post2']
         get_soup_from_url_mock.side_effect = lambda x: dict(post1=soup1, post2=soup2)[x]
-        print soup1, soup2
         PostPageParser_mock.parser_factory.side_effect = lambda x: parser1 if soup1 == x else parser2
         parser1.jsonify.return_value = 'json1'
         parser2.jsonify.return_value = 'json2'
 
-        result = extract_sample_posts_info(3)
-
+        result = list(extract_sample_posts_info(3))
         extract_posts_link_mock.assert_called_once_with(3)
         get_soup_from_url_mock.assert_any_call('post1')
         get_soup_from_url_mock.assert_any_call('post2')
@@ -137,4 +135,4 @@ def test_extract_sample_posts_info():
 
         assert get_soup_from_url_mock.call_count == 2
         assert PostPageParser_mock.parser_factory.call_count == 2
-        assert result == 'json1\njson2\n'
+        assert result == ['json1', 'json2']

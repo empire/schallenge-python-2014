@@ -13,3 +13,4 @@ pip install html5lib
 pip install beautifulsoup4
 pip install -U pytest
 pip install -U mock
+pip install --upgrade pymongo

@@ -13,7 +13,7 @@ def get_url_content(url):
 
 
 def get_soup_from_url(url):
-    print 'Extract url: ', url
+    # print 'Extract url: ', url
     html_doc = get_url_content(url)
     return build_beautiful_soup(html_doc)
 
@@ -45,8 +45,7 @@ def extract_posts_link(links_count):
 
 
 def extract_sample_posts_info(posts_count):
-    io = u''
     for post_url in extract_posts_link(posts_count):
         parser = PostPageParser.parser_factory(get_soup_from_url(post_url))
-        io += parser.jsonify() + u'\n'
-    return io
+        yield parser.jsonify()
+
