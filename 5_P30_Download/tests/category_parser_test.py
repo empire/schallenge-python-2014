@@ -24,5 +24,5 @@ def test_get_pagination_pages():
     assert list(links) == [
         "http://p30download.com/fa/ebook/category/literary/page/2", "http://p30download.com/fa/ebook/category/literary/page/3",
         "http://p30download.com/fa/ebook/category/literary/page/4", "http://p30download.com/fa/ebook/category/literary/page/5",
-        "http://p30download.com/fa/ebook/category/literary/page/17", "http://p30download.com/fa/ebook/category/literary/page/2"
+        "http://p30download.com/fa/ebook/category/literary/page/17"
     ]

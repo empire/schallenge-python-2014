@@ -3,7 +3,9 @@ from bs4 import BeautifulSoup
 __author__ = 'Hossein Zolfi <hossein.zolfi@gmail.com>'
 
 def build_beautiful_soup(html_doc):
-    return BeautifulSoup(html_doc)
+    soup = BeautifulSoup(html_doc, 'html5lib')
+    print 'Page title: ', soup.find('title')
+    return soup
 
 
 def build_beautiful_soup_from_path(path):

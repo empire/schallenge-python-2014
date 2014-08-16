@@ -9,6 +9,7 @@ source python-lib/bin/activate
 
 طریقه نصب از ابتدا در لینوکس
 virtualenv python-lib
+pip install html5lib
 pip install beautifulsoup4
 pip install -U pytest
 pip install -U mock

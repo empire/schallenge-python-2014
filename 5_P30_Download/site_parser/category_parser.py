@@ -7,9 +7,18 @@ class CategoryPageParser:
 
     def get_post_links(self):
         for link in self.__soup.select('.post h1 a'):
-            yield link.attrs['href']
+            href = link.attrs['href']
+            if '://p30download.com/' not in href:
+                continue
+            yield href
 
 
     def get_pagination_pages(self):
-        for link in self.__soup.select('.pagination li > a'):
-            yield link.attrs['href']
+        pagination = self.__soup.select('.pagination li > a')
+        links = []
+        for link in pagination:
+            link = link.attrs['href']
+            # Ignore duplicated links(link-to last/first page may be duplicated)
+            if link not in links:
+                links.append(link)
+        return links
