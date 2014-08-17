@@ -39,9 +39,10 @@ def handle_http_response(response):
     return value
 
 def handle_http_request(request):
+    response = HTTPResponse()
+
     route = router.find_route(request.method, request.path)
     action = route.getAction()
-    response = HTTPResponse()
 
     return handle_action(action, request, response)
 

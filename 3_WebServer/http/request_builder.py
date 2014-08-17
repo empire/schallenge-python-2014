@@ -18,7 +18,7 @@ def process_http_message(request, message, *args, **kwargs):
     lines = header.split('\n')
     initial_line = lines[0]
     method, path, protocol = parse_initial_line(initial_line)
-    build_request(request, method, path)
+    set_request_method_path(request, method, path)
     set_request_headers(request, filter(lambda x:x, lines[1:]))
     _check_method(method)
 
@@ -47,7 +47,7 @@ def set_request_headers(request, headers):
 def set_request_kwargs(request, **kwargs):
     request.set_server_kwargs(**kwargs)
 
-def build_request(request, method, path):
+def set_request_method_path(request, method, path):
     request.method = method
     request.path = path
 

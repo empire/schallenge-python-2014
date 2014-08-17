@@ -1,0 +1,103 @@
+Question: 3
+Email: hossein.zolfi@gmail.com
+Language: Python (Ubuntu 14.04)
+Version: 2.7
+Documentation: doc/developers-guide.txt
+
+برای اجرای برنامه ابتدا بایست virtualenv را فعال کنیم.
+source python-lib/bin/activate
+برنامه به صورت تقریبا کامل بوسیله pytest تست شده است. تست ها در دایرکتوری tests قرار دارند.
+برای اجرای تست ها کافیست دستور زیر را اجرا کنید.
+py.test tests
+بر خلاف سوال اول که تست نوشتن برایش کمی سخت بود (در زمان مسابقه نمی گنجید) برای این سوال و بقیه سوالات تست نوشته شده است. علت استفاده از تست نه جلب نظر داوران بلکه کم کردن زمان debug برنامه است زمان نسبت زیادی از توسعه نرم افزار صرف بررسی اشکالات کد ها می شود و این زمان بسیار بیشتر از زمان توسعه تست است و علت دیگر این که توسعه تست ها به برنامه نویس کمک می کند که کدهای تمیز با قابلیت استفاده مجدد (reusable) را فراهم می کند. از طرفی این مسابقه یک مسابقه مهارت سنجی در زمینه توسعه نرم افزار است بدین طریق فرصتی دست داد تا در زمینه تست هم خودم را محکی بزنم.
+
+برای اجرای سرور به دستور زیر را اجرا کنید.
+python run.py
+
+یک سوکت باز می شود بر روی پورت ۸۱۸۱ گوش می دهد اجرای سرور در ماژول http_server.service قرار دارد به ازای هر ارتباطی که بر قرار می شود یک thread جدید باز می شود که کار مدیریت ارتباط را تابع client_thread در مآژول فوق بر عهده دارد.
+این تابع پیام را دریافت می کند و به handle_user_request می دهد و نتیجه برگشتی را برای client می فرستد. تنها قسمتی از برنامه که با سوکت و برنامه نویسی شبکه در ارتباط است همین ماژول http_server.service است در ماژول بعدی یک گام از این بالاتر می روند و با اضافه شدن لایه های برنامه نویسی شده کمی بیشتر High level تر می شوند.
+
+مهم ترین تابع این برنامه handle_user_request است 
+#http/handle_requests.py
+def handle_user_request(message, *args, **kwargs):
+  ...
+
+این تابع بر مبنای پروتکل وب که request/response است ابتدا یک request می سازد بر اساس پیام ارسال شده مقادیر request را تنظیم می کند
+  request = HTTPRequest()
+  process_http_message(request, message, *args, **kwargs)
+سپس به وسیله request تنظیم شده response را بدست می آورد
+  response = handle_http_request(request)
+
+نوع request از جنس http.http_request.HTTPRequest و نوع response از جنس http.http_response.HTTPResponse است
+اگر در هنگام پردازش دو دستور فوق خطایی اتفاق بیفتد آن استثنا بررسی می شود و response متناظر آن ایجاد می شود.
+  response = handle_http_exception(request, e)
+
+درخواست ها و جواب ها لاگ می شوند
+  ServerRequestLogger.log(request, response)
+و در آخر جواب برگردانده می شود.
+  return handle_response(response)
+
+پیاده سازی بسیار سطح بالا و بسیار قابل فهم است.
+
+تابع process_http_message مقادیر مربوط request را بررسی می کند ان تابع به کمک _check_method پشتیبانی یا عدم پشتیبانی از http-method ها را بررسی می کند  در وصرتی که متدی غیر از GET ارسال شده باشد خطایی را ارسال می کند. طبق قرارداد HTTP وقتی که یک متد پیاده سازی نشده باشد باید خطای ۵۰۱ برگردانده شود اما در سوال ۴۰۵ رو خواسته شده است که طبق چیزی که خواسته شده پیاده سازی شده است و به جای خطای NotImplementedHttpException خطای MethodNotAllowedHttpException ارسال می شود.
+در صورتی که پیام ارسالی درست نباشد BadRequestHttpException پرتاب می شود.
+
+تابع process_http_message از طریق set_request_headers هدرهای ارسالی را در request قرار می دهد و با کمک set_request_method_path متد و آدرس را تنظیم می کند.
+
+تابغ handle_http_request یک request را می گیرد و response را بر می گرداند.
+def handle_http_request(request):
+  response = HTTPResponse()
+این تابع ابتدا route مناسب با method, path را پیدا می کند (در صورتی که یافت نشود خطای NotFoundHttpException پرتاب می شود.
+  route = router.find_route(request.method, request.path)
+از طریق route یک action که کار آن جواب دادن به درخواست کاربر است فراخوانی می شود و خروجی آن برگردانده می شود.
+  
+  action = route.getAction()
+
+  return handle_action(action, request, response)
+
+تابع handle_action اکشن را اجرا می کند بر اساس خروجی مقدار content, status, content_type مربوط به response را تنظیم می کند.
+
+
+در صورتی که خطای از جنس http.exceptions.HttpExceptionBase ارسال شودتابع handle_http_exception اجرا می شود و response مربوط به آن را بر می گرداند.
+def handle_http_exception(request, e):
+  response = HTTPResponse()
+  ...
+برای این که مدیریت خطاها ساده باشد برای هر خطا می توان یک handler تعریف کرد (مانند route عمل می کند ولی یک عدد می گیرد) هر handler مانند action دو ورودی دارد request, response. در صورتی که برای خطای ارسالی handler ای ثبت شده باشد آن handler اجرا می شود.
+    if has_error_handler(status):
+        return handle_action(get_error_handler(status), request, response)
+
+در صورتی که handler ای ثبت نشده باشد خروجی پیش فرض ثبت می شود.
+    response.content = '<html><body>%d %s</body></html>'%(e.status, e.message,)
+    return response
+
+
+با توجه به سوال route های اولیه ای نوشته شده است که در ماژول زیر قرار دارند.
+app/routes.py
+
+به عنوان نمونه وقتی بخواهیم به به درخواست time.php جواب بدیم به صورت خیلی ساده زیر انجام بده:
+def time_php(request, response):
+    io = StringIO.StringIO()
+
+    print >>io, 'Server time: ', datetime.datetime.now(), '<hr />'
+    print >>io, 'Host: ', request.headers['Host'].split(':')[0]
+    return io.getvalue()
+
+router.register_route(Route('GET', '/time.php', time_php))
+که بسیار عالی است و نوشتن route های دیگر هم به راحتی امکان پذیر می کنه و با یک آموزش ساده می توان به هرکسی آموخت چطور route بنویسد
+پارامتر دوم route در واقع یک RegularExpression است یعنی می توان به صورت زیر نوشت
+router.register_route(Route('GET', '/time.(php|asp|html)', time_php))
+و کاربر در مرورگر می تواند هر سه صفحه time.php, time.asp, time.html را مشاهده کند و هر سه مثل هم عمل می کنند
+
+برنامه نویس می تواند برای خطاهای مختلف handler بنویسد که به صورت خیلی سطح بالا به صورت زیر نوشته می شود.
+
+@error_handler(404)
+def handler_404(request, response):
+    return 'Not found!'
+ که همونطور که ملاحظه می کنید بسیار سطح بالاست و خیلی از جزئیات پیاده سازی پنهان شده است.
+ 
+
+طریقه نصب از ابتدا:
+
+virtualenv python-lib
+pip install -U pytest
+pip install -U mock

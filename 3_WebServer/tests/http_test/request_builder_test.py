@@ -107,7 +107,7 @@ def test_set_request_headers_with_host(parse_headers):
 def test_process_http_message():
     with patch.multiple('http.request_builder',
                         parse_initial_line=DEFAULT,
-                        build_request=DEFAULT,
+                        set_request_method_path=DEFAULT,
                         _check_method=DEFAULT,
                         set_request_headers=DEFAULT) as values:
         # Character \r is removed from line #2, #3
@@ -122,7 +122,7 @@ Accept: text/xml\r
         result = process_http_message(request, message)
 
         values['parse_initial_line'].assert_called_once_with('POST /index.html HTTP/1.1')
-        values['build_request'].assert_called_once_with(request, 'POST', '/index.html')
+        values['set_request_method_path'].assert_called_once_with(request, 'POST', '/index.html')
         values['_check_method'].assert_called_once_with('POST')
         values['set_request_headers'].assert_called_once_with(request, [
             'User-Agent: Ocean/14.08.01', 'Host: localhost:8181', 'Accept: text/xml'
