@@ -15,3 +15,11 @@ class TransferCommand(TransactionCommand):
         """
         repository.add_amount(self.__from_account, -self.__amount)
         repository.add_amount(self.__to_account,    self.__amount)
+
+    @property
+    def amount(self):
+        return self.__amount
+
+    @property
+    def order(self):
+        return 3

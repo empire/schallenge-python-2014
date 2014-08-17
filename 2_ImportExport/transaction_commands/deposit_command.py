@@ -13,3 +13,11 @@ class DepositCommand(TransactionCommand):
         :type repository: TransactionRepository
         """
         repository.add_amount(self.__account, self.__amount)
+
+    @property
+    def amount(self):
+        return self.__amount
+
+    @property
+    def order(self):
+        return 2

@@ -1,3 +1,4 @@
+Question 4-Ip-Location
 Python 2.7
 Ubuntu 14.04
 hossein.zolfi@gmail.com
@@ -20,3 +21,6 @@ logging.getLogger('suds.client').setLevel(logging.DEBUG)
 برنامه به صورت تست شده آماده شده و تست ها در قسمت tests قرار دارند برای تست دستور زیر را اجرا می کنیم البته قبل از آن virtualenv را فعال می کنیم. در صورتی که فعال باشد نیازی به اجرای مجدد آن نیست.
 source python-lib/bin/activate
 py.test tests
+
+
+طریقه نصب از ابتدا در لینوکس
