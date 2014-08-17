@@ -1,0 +1,50 @@
+Question: 3
+Email: hossein.zolfi@gmail.com
+Language: Python (Ubuntu 14.04)
+Version: 2.7
+Documentation: doc/developers-guide.txt
+
+برای اجرای برنامه ابتدا بایست virtualenv را فعال کنیم.
+source python-lib/bin/activate
+برنامه به صورت تقریبا کامل بوسیله pytest تست شده است. تست ها در دایرکتوری tests قرار دارند.
+برای اجرای تست ها کافیست دستور زیر را اجرا کنید.
+py.test tests
+بر خلاف سوال اول که تست نوشتن برایش کمی سخت بود (در زمان مسابقه نمی گنجید) برای این سوال و بقیه سوالات تست نوشته شده است. علت استفاده از تست نه جلب نظر داوران بلکه کم کردن زمان debug برنامه است زمان نسبت زیادی از توسعه نرم افزار صرف بررسی اشکالات کد ها می شود و این زمان بسیار بیشتر از زمان توسعه تست است و علت دیگر این که توسعه تست ها به برنامه نویس کمک می کند که کدهای تمیز با قابلیت استفاده مجدد (reusable) را فراهم می کند. از طرفی این مسابقه یک مسابقه مهارت سنجی در زمینه توسعه نرم افزار است بدین طریق فرصتی دست داد تا در زمینه تست هم خودم را محکی بزنم.
+
+
+
+
+
+
+برای اجرای برنامه دستورات زیر را اجرا می کنیم
+source python-lib/bin/activate
+python app.py
+
+ممکن است اجرای برنامه به علت فراخوانی وب سرویس طول بکشد.
+نحوه استفاده بدست آوردن کشور بر اساس ip به صورت زیر است.
+from lib.geoipserverice import get_geo_ip
+print get_geo_ip('4.2.2.4')
+
+برنامه خطاهای urllib2.URLError, socket.timeout را مدیریت می کند و اگر خطایی اتفاق بیفتد در جواب None بر می گرداند و اگر اشکالی پیش نیاید نام کشور به عنوان خروجی برگردانده می شود. خطاهای دیگر بدون گرفته شدن ارسال خواهند شد.
+برای بررسی اجرای برنامه می توانید از log استفاده کنید که به صورت زیر فعال می شود
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('suds.client').setLevel(logging.DEBUG)
+
+پیاده سازی get_geo_ip سر راست است.
+def get_geo_ip(ip):
+  ...
+ابتدا یک کلاینت برای دریافت wsdl می سازد
+  service = Client.get_soap_client_service()
+بر اساس سرویس دریافتی تابع GetGeoIP را فراخوانی می کند و بر اساس آن نام کشور را بر می گرداند
+  result = service.GetGeoIP(ip)
+  return result.CountryName
+کلاس Client در همان ماژول برای راحت تر کردن پروسه توسعه نرم افزار ایجاد شده است.
+
+
+طریقه نصب از ابتدا:
+
+virtualenv python-lib
+pip install suds
+pip install -U pytest
+pip install -U mock
