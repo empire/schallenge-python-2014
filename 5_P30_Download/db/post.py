@@ -37,4 +37,4 @@ def find_posts(search):
     properties = [u'category', u'description', u'views', u'URL', u'name']
     expressions = map(lambda prp: {prp: {"$regex": '.*%s.*'%search}}, properties)
     search_expression = {'$or': expressions}
-    print list(products.find(search_expression))
+    return list(products.find(search_expression))

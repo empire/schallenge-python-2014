@@ -1,0 +1,112 @@
+Question: 3
+Email: hossein.zolfi@gmail.com
+Language: Python (Ubuntu 14.04)
+Version: 2.7
+Documentation: doc/developers-guide.txt
+
+برای اجرای برنامه ابتدا بایست virtualenv را فعال کنیم.
+source python-lib/bin/activate
+برنامه به صورت تقریبا کامل بوسیله pytest تست شده است. تست ها در دایرکتوری tests قرار دارند.
+برای اجرای تست ها کافیست دستور زیر را اجرا کنید.
+py.test tests
+بر خلاف سوال اول که تست نوشتن برایش کمی سخت بود (در زمان مسابقه نمی گنجید) برای این سوال و بقیه سوالات تست نوشته شده است. علت استفاده از تست نه جلب نظر داوران بلکه کم کردن زمان debug برنامه است زمان نسبت زیادی از توسعه نرم افزار صرف بررسی اشکالات کد ها می شود و این زمان بسیار بیشتر از زمان توسعه تست است و علت دیگر این که توسعه تست ها به برنامه نویس کمک می کند که کدهای تمیز با قابلیت استفاده مجدد (reusable) را فراهم می کند. از طرفی این مسابقه یک مسابقه مهارت سنجی در زمینه توسعه نرم افزار است بدین طریق فرصتی دست داد تا در زمینه تست هم خودم را محکی بزنم.
+
+
+برای اجرای برنامه دستورات زیر را اجرا می کنیم
+python app.py
+
+تابع مهم این برنامه extract_sample_posts_info است.
+#site_crawler/crawler.py
+def extract_sample_posts_info(posts_count):
+  ...
+در این برنامه ابتدا از یک دسته تصادفی ۲۰ لینک بدست می آید.
+  for post_url in extract_posts_link(posts_count):
+    ...
+لینک post_url را دانلود می کند و یک PostPageParser می سازد
+    parser = PostPageParser.parser_factory(get_soup_from_url(post_url))
+به وسیله parser بدست آمده محتویات مورد نیاز سایت را به صورت json برای تابع بیرون می فرستد
+    yield parser.jsonify()
+
+
+تابع extract_posts_link  
+def extract_posts_link(links_count):
+  post_links = []
+یک دسته را از سایت به وسیله extract_sample_category_from_site انتخاب می کند به وسیله ی extract_post_links لینک های آن صفحه ی دسته را در post_links قرار می دهد.
+  parser = extract_post_links(extract_sample_category_from_site(), post_links)
+چون تعداد لینک های مورد نیاز ممکن است از تعداد لینک های بدست آمده بیشتر باشد به صفحات دیگر آن دسته می رود 
+  for category_page in parser.get_pagination_pages():
+    ...
+در صورتی که لینک به اندازه کافی جمع نشده بود 
+    if len(post_links) >= links_count:
+	break
+به وسلیه extract_post_links لینک های صفحه را بدست می آورد و این عمل تکرار می شود.
+    extract_post_links(category_page, post_links)
+در آخر لینک های خواسته شده ارسال می گردند.
+  return post_links[:links_count]
+
+
+برای Prase کردن یک صفحه از beautifulsoup4, html5lib کمک گرفته شده است. صفحات p30download از نظر html درست نیستند و خطاهای ساختاری زیادی دارد (تگ ها بسته نشده یا در جای اشتباه بسته شده) که html5lib بهتر از بقیه کتابخانه ها (lxml, html.parser) صفحات را parse کرد. به این خاطر از آن استفاده شده است.
+
+سه ماژول برای parse کردن سایت استفاده شده است که در site_parser قرار دارند.
+اولین index_parser برای گرفتن محتویات صفحه اول (لیست دسته ها و گرفتن یک دسته تصادفی) 
+دومین ماژول category_parser است که یک دسته را می گیرد و لیست لینک های آن و صفحات دیگر آن را بدست می دهد در این ماژول کلاس CategoryPageParser قرار دارد 
+و آخرین ماژول post_parser است که محتویات یک پست (محصول) را استخراج می کند و کلاس PostPageParser در آن قرار گرفته است.
+هر سه ماژول به beautifulsoup4 وابسته هستند.
+
+ماژول index_parser شامل تابع های زیر است.
+def pick_random_category(soup):
+از مستند parse شده یک دسته انتخاب می کند ابتدا لیست تمام دسته ها را بدست می آورد
+  categories = get_categories(soup)
+و سپس یکی را به صورت تصادفی انتخاب می کند
+  return random.choice(categories)
+
+  
+  
+def get_categories(soup):
+تابع get_categories لیست تمام لینک های دسته را استخراج می کند
+  categories_tags = get_base_categories_lists(soup)
+و سپس href آن را بدست می آورد.
+  return extract_categories(categories_tags)
+
+  
+کلاس PostPageParser مجموعه ای از selector های css است که اطلاعات پست(محصول) را بدست می آورد
+کلاس CategoryPageParser دارای دو تابع get_post_links برای دریافت لینک پست های درون آن دسته است و متد get_pagination_pages که لینک صفحه های بعد را استخراج می کند این تابع به صورت پویا با استفاده از pagination موجود در صفحه صفحات بعدی را شناسایی می کند
+
+توابع مربوط ب کار با MongoDB در ماژول db.post قرار دارند
+تابع add_update_product یک محصول را در صورتی که در پایگاه داده وجود نداشته باشد در پایگاه داده ذخیره می کند و در صورتی که وجود داشته باشد و تغییر کرده باشد به روز رسانی می کند.
+بهتر بود به جای این نوع کار که شامل دو عملیات insert , upate است یک عملیات upsert باشد بدین صورت که اگر نبود در پایگاه داده ذخیره شود و اگر در پایگاه داد حضور داشت به روزرسانی شود. با توجه به صورت سوال به روش زیر عمل شده است.
+def add_update_product(product):
+ابتدا پست بر اساس URL جستجو می شود
+    collection = _get_products_collection()
+    product_in_db = collection.find_one(dict(URL=product['URL']))
+اگر وجود نداشت به پایگاه داده اضافه می شود
+    if None == product_in_db:
+        collection.insert(product)
+        return
+و در صورتی که وجود داشت و تغییر کرده بود به روز رسانی می شود
+    del product_in_db['_id']
+    if product != product_in_db:
+        collection.update(dict(URL=product['URL']), product)
+
+برای جستجو در پایگاه داده از find_posts استفاده شده است 
+def find_posts(search):
+به صورت آزمایشیی MongoDB امکان text search اضافه شده است که بهترین راه حل برای این مساله است اما چون هنوز بعضی از پایگاه داده پشتیبانی نمی کنند در این جواب استفاده نشد راه حال بعدی برای گرفتن لیست پست ها بر اساس کلید استفاده map/reduce است که به خاطر پیچیده تر کردن پیاده سازی و ذیق وقت استفاده نشد علت استفاد از این دو روش این است که mongodb اجازه جستجو در value های یک dictionary را با نداشتن کلید نمی دهد.
+یک expression می سازمی که با هم OR شده اند و هر کدام یک Regular-Expressino برای جستجوی متن است.
+    products = _get_products_collection()
+    properties = [u'category', u'description', u'views', u'URL', u'name']
+    expressions = map(lambda prp: {prp: {"$regex": '.*%s.*'%search}}, properties)
+    search_expression = {'$or': expressions}
+سپس از طریق آن cursor برگردانده می شود.
+
+
+
+
+طریقه نصب از ابتدا:
+
+virtualenv python-lib
+pip install -U pytest
+pip install -U mock
+pip install html5lib
+pip install beautifulsoup4
+pip install --upgrade pymongo
+
