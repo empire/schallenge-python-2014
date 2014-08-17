@@ -13,6 +13,10 @@ from models import Account
 
 @app.route('/')
 def home():
-    return render_template('show_all.html',
+    return render_template('home.html')
+
+@app.route('/users')
+def users():
+    return render_template('users.html',
         todos=Account.query.order_by(Account.registered_at.desc()).all()
     )

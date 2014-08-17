@@ -13,6 +13,8 @@
         {% else %}
             <a href="{{ url_for('logout') }}">log out</a>
         {% endif %}
+        <a href="{{ url_for('users') }}">Users</a>
+        <a href="{{ url_for('register') }}">Register</a>
 
         {%- for category, message in get_flashed_messages(with_categories=true) %}
             <p class="flask {{ category }}-flash">{{ "Error: " if category == 'error' }}{{ message }}</p>

@@ -63,12 +63,8 @@ def find_active_account_by_username_and_password(username, password):
     return None
 
 @event.listens_for(Account, 'before_insert')
-def before_insert(mapper, connection, instance):
+def set_activation_code_and_salt(mapper, connection, instance):
     instance.registered_at = datetime.utcnow()
     instance.salt = security.generate_salt()
     instance.password = security.hash_password(instance.salt, instance.password)
     instance.generate_activation_code()
-
-@event.listens_for(Account, 'after_insert')
-def send_verification_email(mapper, connection, instance):
-    pass

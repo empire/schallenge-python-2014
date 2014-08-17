@@ -20,7 +20,7 @@ def register():
 
             send_email(account.email, generate_activation_message(account))
 
-            flash("Success")
+            flash("You are registered successfully")
             return redirect(url_for("home"))
 
     return render_template('register.html', form=form)

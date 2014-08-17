@@ -24,6 +24,7 @@ def activation_regenerate(id):
     if account.is_activation_code_expired():
         account.generate_activation_code()
         db.session.commit()
+    # We must another email, but for ease of development message is shown
     return generate_activation_message(account)
 
 @app.route('/activation/activate/<code>', methods=['GET'])

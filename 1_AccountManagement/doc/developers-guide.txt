@@ -1,0 +1,129 @@
+Question: 1
+Email: hossein.zolfi@gmail.com
+Language: Python (Ubuntu 14.04)
+Version: 2.7
+Documentation: doc/developers-guide.txt
+
+این برنامه به صورت پیش فرض از MySQL استفاده می کند برای اجرای برنامه ابتدا virtualenv را فعال می کنیم و سپس برنامه را اجرا می کنیم.
+source python-lib/bin/activate
+برنامه از پایگاه داده های MySQL, PostgreSQL, SQLite (یا هر پایگاه داده ای دیگری که پایتون بشناسد) پشتیبانی می کند.
+برای اجرای اولیه برنامه نیاز است که جداول ایجاد شوند. برای اجرای تغییرات در پایگاه داده در حین توسعه برنامه از Migration استفاده شده است که در شاخه زیر قرار دارند
+migrations/versions
+برای اعمال تغییرات بر روی پایگاه داده به صورت های می توانیم عمل کنیم یکی استفاده از خط فرمان و دیگرای اجرا از طریق وب
+از طرق خط فرمان کافیست دستور زیر را اجرا کنیم تا تغییرات به پایگاه داده اعمال شوند.
+python web_server.py db upgrade
+و وقتی که وب سرور اجرا شده است از طریق زیر نیز می توان تغییرات را اعمال کرد. در صفحه ی اول برنامه بر روی لینک Check DB (یا http://localhost:5000/check-db) کلیک کنید. روش دیگر  این است که در کد پایتون تابع زیر را فراخوانی کنیم
+from lib.database import check_db
+check_db()
+این تابع بررسی می کند آیا پایگاه داده در آخرین ورژن تغییرات است یا خیر اگر نبود تغییرات را اعمال می کند و True بر می گرداند و اگر خطایی اتفاق بیفتد (پایگاه داده وجود نداشته باشد - دسترسی مشکل داشته باشد و ...) False بر می گرداند.
+
+
+اولین اقدام رجیستر شدن در سایت است برای بالا بردن کیفیت برنامه از چارچوب Flask استفاده شده است. برای رجیستر شدن route به صورت زیر تعریف شده است 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+  ...
+محتوای کدهای html در template  در آدرس templates/register.html قرار داده شده است. برای ساختن فرم از wtforms و برای ذخیره داده از sqlalchemy کمک گرفته شده است. برای ثبت نام ابتدا یک فرم می سازیم
+form = RegisterForm(request.form)
+صحت داده ها را بررسی می کنیم 
+form.validate()
+در صورتی که اشکالی وجود نداشت حساب کاربری ایجاد و ثبت می شود.
+account = Account()
+form.populate_obj(account)
+db.session.add(account)
+db.session.commit()
+
+در صورتی که ثبت موفقیت آمیز بود به کاربر ایمیل ارسال می شود 
+send_email(account.email, generate_activation_message(account))
+متن ایمیل در templates/email_activation قرار دارد کاربر می بایست در ۲۴ ساعت وقت دارد نصبت به فعال سازی حساب خود اقدام کند در صورتی که زمان بگذرد کد باطل شده باشد کد جدیدی تولید می شود (در هنگام فعال سازی به کاربر اطلاع داده می شود که کد باطل شده است).
+پس از اینکه ایمیل ارسال شد کاربر به صفحه ی اصلی هدایت می شود پیام success به کاربر نمایش داده می شود.
+flash("You are registered successfully")
+return redirect(url_for("home"))
+در صورت وجود خطا (اشتباه یا تکراری بودن ایمیل - تکراری بودن نام کاربری - خالی بودن فیلد ها و ...) ثبتی انجام نمی شود و خطاها در صفحه به کاربر نمایش داده می شوند.
+
+کلمه عبور در پایگاه داده به صورت خام ذخیره نمی شود بلکه همراه با یک کد salt ترکیب می شود و hash می شود. توابع مربوطه در ماژول lib.security قرار دارند کار هر تابع به سادگی از روی اسم آن ها مشخص است.
+check_password(hashed_password, salt, user_password)
+hash_password(salt, password)
+generate_random_activation_code()
+generate_salt()
+
+
+پیاده سازی خاصی برای send_email صورت نگرفته است اگر این تابع پیاده سازی شود کافی است پیاده سازی را در ماژول integeration به صورت زیر انجام بدهیم تا برنامه بتواند به درستی ایمیل ارسال کند
+from your.implementaion import send_email
+در حال حاضر به صورت زیر است.
+from email import send_email
+
+برای مشاهده لیست کاربران سایت (برای بررسی) بر روی لینک Users کلیک کنید. در صورتی که کاربر فعال شده باشد تیک enabled زده می شود. در صورتی که کاربر فعال شود به پیام فعال شدن داده می شود. پس از آن می تواند به سایت وارد شود.
+
+در صورتی که کاربری نتواند در سایت لاگین کند به دلایل زیر است:
+۱- ثبت نامه نکرده است
+۲- فعال نشده است. (کد فعال سازی را اجرا نکرده است)
+
+فرم در هنگام ورود به سایت از نظر درست بودن اطلاعات بررسی می شود. validator های برای هر کدام از فیلد ها در نظر گرفته شده است.
+class LoginForm(Form):
+    username = StringField(u'Username', validators=[validators.input_required()])
+    password = StringField(u'Password', validators=[validators.input_required()])
+
+نیاز به استفاده از captcha بود اما به دلیل این که reCaptcha تنها برای دامنه های ثبت شده قابل استفاده بود و گوگل به کسان غیر نمی داد نشد استفاده کنم. captcha ای که هم به صورت آزاد وجود داشت به درستی عکس ها را نمایش نمی داد فرصت اینکه تصحیح اش کنم نداشتم به این خاطر استفاده نشد.
+
+
+توابع مربوط به بررسی Account در ماژول models.account_model قرار دارد که دارای توابع و متدهای مفید زیر است.
+class Acount:
+...
+  generate_activation_code
+  is_activation_code_expired
+  activate
+که عملکرد متد های فوق مشخص است و از روی کد به راحتی نیز می توان تشخیص اش داد.
+
+find_account_by_activation_code
+find_active_account_by_username_and_password
+متد find_active_account_by_username_and_password ابتدا Account با نام کاربری را پیدا می کند اگر وجود نداشت None بر می گرداند در صورت وجود از طریق داشتن کلمه ی عبور بررسی می شود security.check_password(account.password, account.salt, passwor در صورت صحیح بودن کلمه ی عبور حساب بر گردانده می شود در صورتی که اشتباه باشد None بر گردانده می شود.
+طبق صورت سوال می بایست یا None یا Account بر گردد بهتر بود که Exception پرتاب می شد. اما به هر حال به خاطر بررسی اتفاقات لاگ می شود.
+app.logger.info('No active account found' + username)
+app.logger.info('Password is matched')
+app.logger.info('Password is not matched')
+
+برای ثبت salt, activation_code در پایگاه داده در هنگام ثبت رکورد در پایگاه داده این اطلاعات در حساب درج می شوند (این اطلاعات تنها در هنگام ثبت در پایگاه داده درج می شوند و در حالت به روزرسانی تغییری نمی کنند). کد زیر بدین منظور استفاد شده است.
+@event.listens_for(Account, 'before_insert')
+def set_activation_code_and_salt(mapper, connection, instance):
+  ...
+
+توضیح انتهایی در مورد route مربوط به check_db است. در صورتی که بتواند پایگاه داده را به روز رسانی کند template ای که در templates/check_db/success.html  نمایش داده می شود در صورتی که در برقرار ارتباط اشکالی وجود داشته باشد templates/check_db/error.html  رندر می شود.
+
+
+
+تنظمیات:
+تنظمیات در فایل config/app.cfg قرار دارد که محتویات آن نوع داده های پایتون است.
+کلید DB_DRIVER نوع پایگاه داده را مشخص می کند که می تواند یکی از سه مقدار sqlite, postgresql, mysql باشد در صورتی که از SQLite استفاده می کنید باید متغییر SQLITE را تنظیم کنید که بمی تواند به صورت زیر باشد 
+SQLITE = dict(path='/tmp/FataDB.db')
+برای پایگاه داده های دیگر تنظیمات به صورت زیر است 
+DB_USERNAME = 'account_problem'
+DB_PASSWORD = 'tnuocca'
+DB_HOST = 'localhost'
+DB_NAME = 'FataDB'
+
+برای PostgreSQL مقدار پورت درج شود.
+DB_HOST='localhost:5432'
+برای پشتیبانی از پایگاه داده های غیر از این سه مورد اگر URI آن را به صورت زیر ثبت کنیم برنامه می تواند با آن کار کند. به عنوان نمونه
+SQLALCHEMY_DATABASE_URI = 'mysql://account_problem:tnuocca@localhost/FataDB'
+وقتی که به صورت دستی این مقدار تنظیم شود تنظیم مربوط به DRIVER در نظر گرفته نمی شود. کد تنظیم کننده در ماژول زیر قرار دارد
+config.__init__.config_db
+
+به علت اینکه در سیستم عامل اوبونتو برنامه نویسی می کنم امکان تست پایگاه داده SQL-Server را نداشتم. (درایور به راحتی پشتیبانی نمی شود).
+برای مشاهد روش های دیگر می توانید به سایت زیر مراجعه کنید.
+https://pythonhosted.org/Flask-SQLAlchemy/config.html
+
+python web_server.py runserver
+طریقه نصب از ابتدا:
+pip install Flask
+pip install flask-sqlalchemy
+pip install flask-migrate
+pip install Flask-WTF
+pip install WTForms-Alchemy
+
+sudo apt-get install libmysqlclient-dev
+pip install MySQL-python
+
+sudo apt-get install libpq-dev
+pip install psycopg2
+
+pip install flask-migrate
