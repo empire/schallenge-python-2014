@@ -8,6 +8,7 @@ flask/lib
 
 *.zip
 *.kate-swp
+*.bz2
 
 # C extensions
 *.so
