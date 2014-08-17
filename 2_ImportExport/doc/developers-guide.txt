@@ -4,18 +4,174 @@ Language: Python (Ubuntu 14.04)
 Version: 2.7
 Documentation: doc/developers-guide.txt
 
+برای اجرای برنامه ابتدا بایست virtualenv را فعال کنیم.
+source python-lib/bin/activate
+برنامه به صورت تقریبا کامل بوسیله pytest تست شده است. تست ها در دایرکتوری tests قرار دارند.
+برای اجرای تست ها کافیست دستور زیر را اجرا کنید.
+py.test tests
+بر خلاف سوال اول که تست نوشتن برایش کمی سخت بود (در زمان مسابقه نمی گنجید) برای این سوال و بقیه سوالات تست نوشته شده است. علت استفاده از تست نه جلب نظر داوران بلکه کم کردن زمان debug برنامه است زمان نسبت زیادی از توسعه نرم افزار صرف بررسی اشکالات کد ها می شود و این زمان بسیار بیشتر از زمان توسعه تست است و علت دیگر این که توسعه تست ها به برنامه نویس کمک می کند که کدهای تمیز با قابلیت استفاده مجدد (reusable) را فراهم می کند. از طرفی این مسابقه یک مسابقه مهارت سنجی در زمینه توسعه نرم افزار است بدین طریق فرصتی دست داد تا در زمینه تست هم خودم را محکی بزنم.
+
+برای این که بتوان فرمت های مختلف را خواند و به فرمت های مختلف نوشت از دو کلاس اصلی بهره گرفته می شود.
+readers.input_reader.InputReader
+writers.output_writer.OutputWriter
+
+هر کدام از این کلاس ها فرمت خاصی را پشتیبانی می کنند (از کلاس FileFormatAware ارث می برند) برای این که نوع فرمت مشخص شود متد supported_format را override می کنند مثلا 
+class XMLInputReader(InputReader):
+  ...
+  def supported_format(self):
+      return 'xml'
+
+برای ثبت انواع reader/writer از کلاس FileFormatAwareContainer بهره گرفته شده است. که برای ثبت reader ها به صورت زیر عمل می شود.
+# readers/__init__.py
+
+reader_container = FileFormatAwareContainer()
+reader_container.register(JsonInputReader())
+reader_container.register(CSVInputReader())
+reader_container.register(TXTInputReader())
+reader_container.register(XMLInputReader())
+و برای writer ها
+# writers/__init__.py
+writer_container = FileFormatAwareContainer()
+writer_container.register(JSONOutputWriter())
+writer_container.register(TXTOutputWriter())
+writer_container.register(CSVOutputWriter())
+writer_container.register(XMLOutputWriter())
+
+کلاس FileFormatAwareContainer این امکان را به برنامه نویس می دهد که بتواند reader یا writer خود را به نرم افزار اضافه کند مانند نمونه فوق. این کلاس دارای متد های زیر است 
+register
+get
+is_format_supported
+که برای ثبت یک شی-بررسی وجود داشتن و یا دریافت آن استفاده می شود.
+برای اینکه یک فایل ورودی به reader تبدیل شود یا یک فایل خروجی را به writer تبدیل شود (شی مربوط به InputReader, OutputWriter ساخته شود) از دو تابع زیر استفاده می شود.
+
+_get_reader(input_file)
+با استفاده از امکانات فوق تابع _get_reader ابتدا Extension فایل را بدست می آورد در صورتی که reader_container آن را پشتیبانی کند reader را بدست می آورد 
+...
+    input_file_extension = extract_file_extension(input_file)
+    if not reader_container.is_format_supported(input_file_extension):
+        raise FileFormatNotSupported(input_file)
+
+در صورتی که فرمت پشتیبانی نشود  lib.exceptions.FileFormatNotSupported پرتاب می شود و در صورتی که فرمت پشتیبانی شود فایل باز می شود و  reader از طریق متد open محتویات فایل را می خواند.
+    reader = reader_container.get(input_file_extension)
+    reader.open(open(input_file))
+
+_get_writer(output_file)
+پیاده سازی _get_writer بسیار شبیه به _get_reader است با این تفاوت که نیازی به باز کردن فایل ندارد (خروجی را به صورت رشته بر می گردند)
+
+زیر کلاس های InputReader یک Iterable هستند تک تک دستورات (Deposit, Transfer, Withdraw) را می خوانند و بر می گرداند. که می توان به صورت زیر تک تک دستورات (ٌWithdraw, Transfer, Deposit) را بدست آورد.
+for command in reader:
+  ...
+در صورت سوال این برنامه سه دستور تراکنش در نظر گرفته شده است. Deposit, Transfer, Withdraw. فایل های ورودی شامل این دستورات است و فرمت هرکدام تفاوت دارد. InputReader ها فایل را می خوانند بر اساس فرمت داده ی درون آن ها یکی از سه دستورات را بر می گردانند.
+مثلا برای فرمت txt در ابتدای هر خط نوع دستور قرار دارد بقیه خط بر اساس نوع دستور تشخیص داده می شود پس ابتدا TXTInputReader خط به خط فایل را می خواند 
+row = self.__data_iter.next().strip()
+به ازای هر خط خط را براساس فاصله می شکند
+row_data = filter(lambda x: x, row.split(' '))
+فرمت داده را تشخیص می دهد
+row_type = self.__get_type(row_data)
+داده ی بدست آمده را به factory می دهد تا دستور را استخراج کند
+_command_factories[row_type](row_data)
+که _command_factories به صورت زیر تعریف شده است
+_command_factories = dict(
+    deposit  = lambda data: DepositCommand(int(data[1]), float(data[2])),
+    withdraw  = lambda data: WithdrawCommand(int(data[1]), float(data[2])),
+    transfer = lambda data: TransferCommand(int(data[1]), int(data[4]), float(data[2])),
+)
+که به راحتی قابل خواندن است و به راحتی می توان دستور جدیدی به آن اضافه کرد. هر InputReader سازنده خاص خود را دارد مثلا JsonInputReader
+_command_factories = dict(
+    deposit  = lambda data: DepositCommand(data['account_id'], data['amount']),
+    withdraw  = lambda data: WithdrawCommand(data['account_id'], data['amount']),
+    transfer = lambda data: TransferCommand(data['from'], data['to'], data['amount']),
+)
+و یا CSVInputReader
+_command_factories = dict(
+    deposit  = lambda data: DepositCommand(int(data['to']), float(data['amount'])),
+    withdraw  = lambda data: WithdrawCommand(int(data['from']), float(data['amount'])),
+    transfer = lambda data: TransferCommand(int(data['from']), int(data['to']), float(data['amount'])),
+)
+
+در خواندن xml روش به شکل دیگری است و XMLInputReader با استفاده از یک handler دستورات را استخراج می کند
+class TransactionHandler(ContentHandler):
+    ...
+    elif 'deposit' == tag:
+       self.commands.append(DepositCommand(int(self.__data['account_id']), float(self.__data['amount'])))
+    elif 'withdraw' == tag:
+       self.commands.append(WithdrawCommand(int(self.__data['account_id']), float(self.__data['amount'])))
+    elif 'transfer' == tag:
+       self.commands.append(TransferCommand(int(self.__data['from']), int(self.__data['to']), float(self.__data['amount'])))
+    ...
+
+به OutputWriter ها داده ای به شکل زیر داده می شود تا خروجی را تولید کنند مرتب شده ای که در صورت سوال اشاره شده است فرستاده می شود و هر کدام از OutputWriter داده را به شکلی تولید می کنند. مثلا
+class JSONOutputWriter:
+    ...
+    def generate(self, data):
+        deltas = []
+        for account_info in data:
+            deltas.append(dict(account_id=account_info[0], amount=account_info[1]))
+
+        return json.dumps(dict(accounts_delta=deltas))
+
+هر دستور تراکنش زیر کلاسی از TransactionCommand هستند یک متد زیر را override می کنند
+  def apply_to(self, repository):
+    ...
+هر دستور بر اساس تعریف خود آن را پیاده سازی می کند. به عنوان نمونه 
+class TransferCommand(TransactionCommand):
+    ...
+    def apply_to(self, repository):
+        """
+        :type repository: TransactionRepository
+        """
+        repository.add_amount(self.__from_account, -self.__amount)
+        repository.add_amount(self.__to_account,    self.__amount)
+و دستورات دیگر هم پیاده سازی ساده ای مثل فوق را دارند.
+
+جمع بندی مطالب فوق را می توان در analysis_transactions_with_reader_writer دید که توضیح قسمت هایش در بالا آمده است. این تابع reader, writer را می گیرد خروجی را بر می گرداند
+# lib/analysis_transactions.py
+def analysis_transactions_with_reader_writer(reader, writer):
+    for command in reader:
+        command.apply_to(repository)
+    transactions = repository.get_formatted_transactions()
+    return writer.generate(transactions)
+
+تابع اصلی برنامه به صورت ساده و قابل فهم زیر پیاده سازی شده است. که خروجی بر گردانده شده تابع analysis_transactions_with_reader_writer را فایل ذخیره می کند.
+def analysis_transactions(input_file, output_file):
+    reader = _get_reader(input_file)
+    writer = _get_writer(output_file)
+
+    content = analysis_transactions_with_reader_writer(reader, writer)
+    _write_output(output_file, content)
+
+نتیجه تراکنش ها در TransactionRepository اعمال می شود. که با بهره گیری از SortedDict داده ها را به صورت مرتب در خود نگه می دارد و خروجی فرمت بندی شده مورد نیاز OutputWriter را از طریق get_formatted_transactions‌ فراهم می آورد.
+
+نمونه اجرای برنامه به صورت زیر است
+python import_export.py
+
+پیاده سازی transaction_sorter از طریق متدهای تعریف شده بالاست
+def sort_transactions(input_file_list, base_name):
+...
+    sort_file_lists(input_file_list, file_name_generator)
+    merge_file_list(file_name_generator, sorted_files)
+    split_files(sorted_files)
+لیست فایل ها را می گیرد به کمک InputReader ها فایل را می خواند (هر ورودی می تواند فرمت های جداگانه داشته باشد) و تعدای فایل مرتب تولید می کند
+merge_file_list(file_name_generator, sorted_files)
+فایل های مرتب ایجاد شده را دو به دو با هم یک پارچه می کند
+split_files(sorted_files) 
+و فایل ها را می شکند
+
+محدودیت حافظه بر اساس تعداد دستور مشخص شده است 
+number_of_allowed_command = 40000
+برای یکی کردن فایل ها از پیاده سازی شبیه merge_sort در merge_file_list استفاده شده است. نام فایل واسطی که تولید می شود به کمک sorted_file_file_name_generator که یک generator است بدست می آید.
+تابع split_files فایل  یکی شده نهایی تولید شده را می خواند خروجی مورد نظر را با در نظر گرفتن محدودیت اندازه فایل ایجاد می کند.
+
+برای ایجاد نمونه فایل ها به صورت زیر می توانید عمل کنید.
+python sample_large_files_generator.py
+و برای اجرای مرتب سازی
+python question_sort_transactions.py
+
+
 
 طریقه نصب از ابتدا:
-pip install Flask
-pip install flask-sqlalchemy
-pip install flask-migrate
-pip install Flask-WTF
-pip install WTForms-Alchemy
 
-sudo apt-get install libmysqlclient-dev
-pip install MySQL-python
-
-sudo apt-get install libpq-dev
-pip install psycopg2
-
-pip install flask-migrate
+virtualenv python-lib
+pip install -U pytest
+pip install -U mock
+pip install sortedcontainers

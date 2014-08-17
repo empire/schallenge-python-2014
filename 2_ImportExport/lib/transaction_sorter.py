@@ -62,12 +62,13 @@ def merge_file_list(file_name_generator, sorted_files):
 
 
 def split_files(sorted_files):
-    with open(sorted_files[0]) as fp:
-        while True:
-            try:
-                rec = pickle.load(fp)
-            except:
-                break
+    pass
+    # with open(sorted_files[0]) as fp:
+    #     while True:
+    #         try:
+    #             rec = pickle.load(fp)
+    #         except:
+    #             break
 
 
 def sort_transactions(input_file_list, base_name):
